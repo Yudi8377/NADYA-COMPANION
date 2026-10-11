@@ -51,3 +51,21 @@ test('psychology learning levels and Indonesian language starter knowledge are s
   assert.match(kb.search('bahasa sunda punten')[0].text, /hatur nuhun/i);
   assert.match(kb.search('bahasa gaul spill')[0].text, /berubah cepat/i);
 });
+
+
+test('approved knowledge preserves provenance, date, evidence type, and uncertainty', () => {
+  const kb = new LocalKnowledgeBase(new MemoryStorage());
+  const item = kb.addApproved({
+    topic: 'Belajar efektif',
+    text: 'Pengulangan berkala dapat membantu proses belajar, tetapi hasil bergantung pada konteks.',
+    source: 'https://example.org/learning',
+    publishedAt: '2026-09-10',
+    evidenceType: 'Tinjauan sistematis',
+    limitations: 'Tidak semua temuan berlaku untuk semua usia dan konteks.'
+  });
+  assert.equal(item.status, 'approved-local');
+  assert.equal(item.publishedAt, '2026-09-10');
+  assert.equal(item.evidenceType, 'Tinjauan sistematis');
+  assert.match(item.limitations, /Tidak semua temuan/);
+  assert.equal(kb.userEntries()[0].source, 'https://example.org/learning');
+});
