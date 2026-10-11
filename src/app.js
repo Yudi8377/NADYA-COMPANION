@@ -79,17 +79,18 @@ function speak(text) {
   const lang = persona.language === 'jv' ? 'jv-ID' : 'id-ID';
   const voiceList = availableVoices.length ? availableVoices : window.speechSynthesis.getVoices();
   const femalePattern = /\b(?:female|perempuan|woman|zira|samantha|karen|tessa|gadis|aria|jenny|michelle|eva|susan|hazel|heera|monica|sara|victoria)\b/i;
-  let candidates = voiceList.filter((voice) => voice.lang.toLowerCase().startsWith(lang.split('-')[0].toLowerCase()));
-  if (!candidates.length && lang !== 'id-ID') candidates = voiceList.filter((voice) => voice.lang.toLowerCase().startsWith('id'));
-  const requestedVoice = persona.voiceName && voiceList.find((voice) => voice.name === persona.voiceName);
-  // A voice explicitly chosen by the user takes precedence. Browser voice names are
-  // inconsistent across OS languages, so do not reject a manually selected voice
-  // merely because its name does not contain a gender marker.
+  // Never use an English/foreign-language voice to read Indonesian text: it creates
+  // the forced English accent the user reported. Only voices tagged for the target language qualify.
+  const languageCode = lang.split('-')[0].toLowerCase();
+  const candidates = voiceList.filter((voice) => String(voice.lang || '').toLowerCase().startsWith(languageCode));
+  const requestedVoice = persona.voiceName && candidates.find((voice) => voice.name === persona.voiceName);
+  // Prefer a voice matching ARYA's masculine presentation, but preserve Indonesian
+  // pronunciation over a foreign voice if this device lacks a tagged male Indonesian voice.
   const selected = persona.gender === 'masculine'
-    ? (requestedVoice || candidates.find((voice) => maleVoiceName(voice.name)) || voiceList.find((voice) => maleVoiceName(voice.name)) || null)
-    : (requestedVoice || candidates.find((voice) => femalePattern.test(voice.name)) || candidates[0] || voiceList[0] || null);
-  if (persona.gender === 'masculine' && !selected) {
-    setVoiceState('idle', 'ARYA: suara pria tidak tersedia', 'ARYA tidak akan memakai suara default yang mungkin terdengar wanita. Tambahkan suara pria di Windows/Edge, lalu buka ulang pilihan suara.');
+    ? (requestedVoice || candidates.find((voice) => maleVoiceName(voice.name)) || candidates[0] || null)
+    : (requestedVoice || candidates.find((voice) => femalePattern.test(voice.name)) || candidates[0] || null);
+  if (!selected) {
+    setVoiceState('idle', companionName() + ': suara Bahasa Indonesia tidak tersedia', 'Perangkat/browser ini belum menyediakan suara Bahasa Indonesia. Aktifkan atau pasang suara Bahasa Indonesia di pengaturan Windows, lalu muat ulang halaman. Saya tidak akan menggantinya dengan suara Inggris.');
     return;
   }
   const chunks = clean.match(/[^.!?]+[.!?]+|[^.!?]+$/g)?.map((part) => part.trim()).filter(Boolean) || [clean];
