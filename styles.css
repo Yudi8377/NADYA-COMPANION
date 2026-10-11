@@ -22,3 +22,16 @@
 .memory-item small{font-size:10px;color:var(--muted)}
 .empty-state{font-size:12px;line-height:1.7;color:var(--muted);border:1px dashed #3a4658;padding:18px;border-radius:13px}
 @media(max-width:560px){.memory-item{align-items:flex-start}.memory-actions>*{flex:1 1 auto}.memory-list-heading{align-items:flex-start;flex-direction:column}}
+
+.agent-task-form{display:grid;gap:10px;margin:22px 0 12px;padding:19px;border:1px solid var(--line);background:var(--panel);border-radius:var(--radius)}
+.agent-task-form label{font-size:12px;font-weight:600;color:#d9e2ef}
+.agent-task-form textarea{width:100%;resize:vertical;min-height:76px;border:1px solid #3a4658;border-radius:10px;background:#101722;color:var(--text);padding:12px;outline-offset:2px;font-size:13px;line-height:1.6}
+.agent-task-form textarea:focus{border-color:var(--accent)}
+.agent-task-form .primary-button{justify-self:start}
+.agent-plan{display:grid;gap:12px;margin:14px 0 22px}
+.plan-result-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.plan-result-heading h3{font:600 14px Manrope,sans-serif;margin:0}
+.plan-steps{display:grid;gap:8px}
+.plan-step{display:flex;align-items:flex-start;gap:12px;padding:13px 15px;border:1px solid var(--line);background:var(--panel);border-radius:12px;font-size:12px;line-height:1.65;cursor:pointer}
+.plan-step input{margin-top:3px;accent-color:var(--accent);flex:0 0 auto}
+.plan-step:has(input:checked) span{color:var(--muted);text-decoration:line-through}

@@ -15,8 +15,10 @@ Roadmap ini berbasis bukti implementasi, bukan janji tanggal.
 - [x] Persetujuan, peninjauan, ekspor, dan penghapusan memori manual lokal.
 - [ ] Conversation evaluation fixtures.
 
-## M2 — Agent orchestration
-- [ ] Task plan, specialist-agent contract, bounded retries and timeouts.
+## M2 — Agent orchestration (berjalan)
+- [x] Agen perencana lokal berbasis aturan dengan langkah kerja yang dapat ditandai selesai.
+- [x] Jejak eksekusi lokal terbatas untuk audit/debug.
+- [ ] Model AI generatif untuk agen spesialis, bounded retries and timeouts.
 - [ ] Permission-aware tool dispatch and trace viewer.
 - [ ] Test matrix for refusal, failure, and conflicting agent outputs.
 

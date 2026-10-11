@@ -8,4 +8,5 @@ await cp('src/app.js', 'dist/src/app.js');
 await cp('src/core/runtime.js', 'dist/src/core/runtime.js');
 await cp('src/core/capabilities.js', 'dist/src/core/capabilities.js');
 await cp('src/core/memory.js', 'dist/src/core/memory.js');
+await cp('src/core/orchestrator.js', 'dist/src/core/orchestrator.js');
 console.log('NADYA static production bundle created in dist/.');

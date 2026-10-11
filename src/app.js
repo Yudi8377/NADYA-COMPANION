@@ -1,8 +1,10 @@
 import { NadyaRuntime } from './core/runtime.js';
 import { LocalMemoryStore } from './core/memory.js';
+import { NadyaOrchestrator } from './core/orchestrator.js';
 
 const runtime = new NadyaRuntime();
 const memory = new LocalMemoryStore();
+const orchestrator = new NadyaOrchestrator();
 const $ = (selector) => document.querySelector(selector);
 const navItems = [...document.querySelectorAll('[data-view]')];
 const views = [...document.querySelectorAll('[data-panel]')];
@@ -141,6 +143,54 @@ clearMemoryButton.addEventListener('click', () => {
   memory.clear();
   memoryStatus.textContent = 'Semua catatan memori dihapus dari browser ini.';
   renderMemory();
+});
+
+const planForm = $('#agent-task-form');
+const planInput = $('#agent-task-input');
+const planOutput = $('#agent-plan');
+const planStatus = $('#agent-plan-status');
+
+function renderPlan(result) {
+  planOutput.replaceChildren();
+  const heading = document.createElement('div');
+  heading.className = 'plan-result-heading';
+  const title = document.createElement('h3');
+  title.textContent = 'Rencana kerja';
+  const progress = document.createElement('span');
+  progress.className = 'muted-label';
+  heading.append(title, progress);
+  const list = document.createElement('div');
+  list.className = 'plan-steps';
+  const updateProgress = () => {
+    const checks = [...list.querySelectorAll('input[type="checkbox"]')];
+    const done = checks.filter((check) => check.checked).length;
+    progress.textContent = `${done}/${checks.length} langkah selesai`;
+    planStatus.textContent = 'Agen perencana lokal berbasis aturan; bukan model AI generatif.';
+  };
+  result.steps.forEach((step) => {
+    const label = document.createElement('label');
+    label.className = 'plan-step';
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.addEventListener('change', updateProgress);
+    const text = document.createElement('span');
+    text.textContent = step;
+    label.append(checkbox, text);
+    list.append(label);
+  });
+  planOutput.append(heading, list);
+  updateProgress();
+}
+
+planForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+  const result = orchestrator.run(planInput.value);
+  if (!result.ok) {
+    planStatus.textContent = result.message;
+    return;
+  }
+  renderPlan(result);
+  planStatus.textContent = `Agen ${result.agentLabel} menyusun rencana lokal untuk: ${result.goal}`;
 });
 
 function renderCapabilities() {

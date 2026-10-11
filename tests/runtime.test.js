@@ -74,3 +74,24 @@ test('memory rejects empty and overlong notes', () => {
   assert.throws(() => store.add('   '), /kosong/i);
   assert.throws(() => store.add('a'.repeat(501)), /500 karakter/i);
 });
+
+import { NadyaOrchestrator } from '../src/core/orchestrator.js';
+
+test('local planner returns actionable steps for a learning goal', () => {
+  const orchestrator = new NadyaOrchestrator();
+  const result = orchestrator.run('Buat rencana belajar Matematika untuk ujian');
+  assert.equal(result.ok, true);
+  assert.equal(result.agentId, 'planner');
+  assert.equal(result.mode, 'local-rule-based');
+  assert.ok(result.steps.length >= 4);
+  assert.match(result.steps.join(' '), /latihan/i);
+});
+
+test('local planner rejects empty goals and bounds trace history', () => {
+  const orchestrator = new NadyaOrchestrator({ maxTraces: 2 });
+  assert.equal(orchestrator.run(' ').ok, false);
+  orchestrator.run('Buat proposal kegiatan');
+  orchestrator.run('Rencanakan aplikasi');
+  orchestrator.run('Bantu saya menyusun jadwal');
+  assert.equal(orchestrator.traces.length, 2);
+});
