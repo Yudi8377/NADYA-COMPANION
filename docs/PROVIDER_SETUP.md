@@ -1,20 +1,26 @@
-# Menyiapkan backend AI NADYA
+# Menyiapkan backend AI NADYA dengan Supabase
 
-Frontend statis GitHub Pages tidak dapat menjalankan secret server. Endpoint `api/chat.js` ditujukan untuk deployment serverless Node.js (misalnya Vercel) dari repositori ini.
+NADYA hanya menggunakan GitHub/GitHub Pages untuk repositori, CI, dan frontend statis serta Supabase untuk backend. Fungsi AI berada di `supabase/functions/nadya-chat/index.ts`; fungsi tersebut tidak berjalan di GitHub Pages.
 
-## Secret server
+## 1. Pilih proyek Supabase khusus NADYA
 
-Atur variabel berikut di dashboard hosting backend; jangan menaruh kunci di `src/`, HTML, commit, atau pesan chat.
+Jangan menggunakan proyek aplikasi lain tanpa persetujuan. Setelah proyek NADYA dipilih, masukkan URL proyek dan publishable key-nya ke `src/config.js`. Publishable key memang digunakan di frontend; jangan pernah menaruh secret key, service-role key, atau `OPENAI_API_KEY` di sana.
 
-- `OPENAI_API_KEY` — wajib, simpan sebagai secret/encrypted variable.
+## 2. Secrets Edge Function
+
+Simpan secrets di Supabase Edge Functions:
+
+- `NADYA_PUBLISHABLE_KEY` — nilai yang sama dengan publishable key pada konfigurasi frontend; fungsi membandingkannya sebelum menerima permintaan.
+- `OPENAI_API_KEY` — wajib, rahasia provider AI.
 - `OPENAI_MODEL` — opsional; default `gpt-4o-mini`.
-- `OPENAI_BASE_URL` — opsional; default `https://api.openai.com/v1`, gunakan hanya endpoint provider yang tepercaya dan kompatibel dengan API chat completions.
+- `OPENAI_BASE_URL` — opsional; default `https://api.openai.com/v1`, gunakan hanya endpoint tepercaya yang kompatibel dengan Chat Completions.
+- `NADYA_ALLOWED_ORIGINS` — opsional, daftar origin dipisahkan koma; default mengizinkan GitHub Pages NADYA dan localhost untuk pengembangan.
 
-Deploy backend setelah variabel disimpan. Uji `POST /api/chat` dengan JSON berisi `messages` (role hanya `user` atau `assistant`) dan opsional `memories`. Endpoint menerapkan validasi ukuran, batas jumlah pesan, timeout, respons generik untuk kesalahan provider, dan rate limit in-memory dasar.
+Deploy fungsi `nadya-chat` dari Supabase Dashboard/CLI. Atur fungsi dengan `verify_jwt = false` karena versi awal tidak mewajibkan login; fungsi menerapkan pemeriksaan publishable key, CORS/origin, validasi payload, timeout, dan rate limit dasar. Publishable key bukan rahasia dan pemeriksaan Origin bukan mekanisme autentikasi yang kuat. Rate limit in-memory bersifat best-effort; sebelum trafik publik, tambahkan kuota per pengguna/perangkat yang tahan distribusi dan pemantauan biaya.
 
-## Catatan keamanan
+## Privasi dan batasan
 
-- Rate limit in-memory bersifat best-effort dan tidak terdistribusi; sebelum penggunaan publik, tambahkan rate limit di gateway/WAF atau penyimpanan bersama.
-- API key tidak pernah dikirim ke browser. Jangan pernah mengaktifkan logging body chat di hosting.
-- Catatan memori hanya dikirim ke provider bila memori lokal aktif. Pesan yang dikirim ke model eksternal diproses oleh provider; jangan sertakan informasi sensitif yang tidak diperlukan.
-- Static GitHub Pages tidak menjalankan `api/chat.js`. Sampai backend terdeploy dan endpoint tersedia pada origin aplikasi, aplikasi tetap menggunakan runtime lokal dan menunjukkan status yang jujur.
+- Kunci provider tidak pernah dikirim ke browser.
+- Catatan memori hanya dikirim bila pengguna mengaktifkan memori lokal; pesan chat diproses provider eksternal.
+- Fungsi tidak menyimpan riwayat chat ke database. Memori tetap lokal sampai sinkronisasi Supabase dirancang dengan persetujuan eksplisit dan kebijakan akses.
+- Sampai proyek Supabase NADYA dipilih, fungsi dideploy, dan secrets diatur, aplikasi menggunakan runtime lokal. Jangan mengklaim model AI sudah aktif.
