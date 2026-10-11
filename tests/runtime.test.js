@@ -95,3 +95,14 @@ test('local planner rejects empty goals and bounds trace history', () => {
   orchestrator.run('Bantu saya menyusun jadwal');
   assert.equal(orchestrator.traces.length, 2);
 });
+
+test('planner traces can be exported and cleared', () => {
+  const orchestrator = new NadyaOrchestrator();
+  orchestrator.run('Buat rencana belajar');
+  const exported = JSON.parse(orchestrator.exportTracesJSON());
+  assert.equal(exported.schemaVersion, 1);
+  assert.equal(exported.traces.length, 1);
+  assert.equal(exported.traces[0].agentId, 'planner');
+  orchestrator.clearTraces();
+  assert.equal(orchestrator.traces.length, 0);
+});

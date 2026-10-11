@@ -190,7 +190,50 @@ planForm.addEventListener('submit', (event) => {
     return;
   }
   renderPlan(result);
+  renderTraces();
   planStatus.textContent = `Agen ${result.agentLabel} menyusun rencana lokal untuk: ${result.goal}`;
+});
+
+const traceList = $('#agent-trace-list');
+const exportTracesButton = $('#export-agent-traces');
+const clearTracesButton = $('#clear-agent-traces');
+
+function renderTraces() {
+  traceList.replaceChildren();
+  const traces = [...orchestrator.traces].reverse();
+  if (!traces.length) {
+    const empty = document.createElement('p');
+    empty.className = 'empty-state';
+    empty.textContent = 'Belum ada jejak eksekusi. Jalankan perencana untuk membuat catatan audit lokal.';
+    traceList.append(empty);
+    return;
+  }
+  for (const trace of traces) {
+    const item = document.createElement('article');
+    item.className = 'trace-item';
+    const title = document.createElement('strong');
+    title.textContent = trace.agentId === 'planner' ? 'Planning Agent' : trace.agentId;
+    const meta = document.createElement('small');
+    meta.textContent = `${new Date(trace.at).toLocaleString('id-ID')} · ${trace.mode} · ${trace.stepCount} langkah`;
+    item.append(title, meta);
+    traceList.append(item);
+  }
+}
+
+exportTracesButton.addEventListener('click', () => {
+  const blob = new Blob([orchestrator.exportTracesJSON()], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = 'nadya-agent-traces.json';
+  anchor.click();
+  URL.revokeObjectURL(url);
+});
+
+clearTracesButton.addEventListener('click', () => {
+  if (!window.confirm('Hapus seluruh jejak eksekusi lokal?')) return;
+  orchestrator.clearTraces();
+  renderTraces();
 });
 
 function renderCapabilities() {
@@ -214,6 +257,7 @@ function renderCapabilities() {
 }
 renderCapabilities();
 renderMemory();
+renderTraces();
 
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {

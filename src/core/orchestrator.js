@@ -17,4 +17,16 @@ export class NadyaOrchestrator {
     this.traces = this.traces.slice(-this.maxTraces);
     return result;
   }
+
+  exportTracesJSON() {
+    return JSON.stringify({
+      schemaVersion: 1,
+      exportedAt: new Date().toISOString(),
+      traces: this.traces.map((trace) => ({ ...trace }))
+    }, null, 2);
+  }
+
+  clearTraces() {
+    this.traces = [];
+  }
 }

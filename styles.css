@@ -35,3 +35,11 @@
 .plan-step{display:flex;align-items:flex-start;gap:12px;padding:13px 15px;border:1px solid var(--line);background:var(--panel);border-radius:12px;font-size:12px;line-height:1.65;cursor:pointer}
 .plan-step input{margin-top:3px;accent-color:var(--accent);flex:0 0 auto}
 .plan-step:has(input:checked) span{color:var(--muted);text-decoration:line-through}
+
+.trace-panel{margin:22px 0 24px;padding:18px;border:1px solid var(--line);background:var(--panel);border-radius:var(--radius)}
+.trace-panel-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.trace-panel-heading h3{font:600 14px Manrope,sans-serif;margin:0 0 5px}
+.trace-list{display:grid;gap:8px}
+.trace-item{display:grid;gap:6px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:#101722}
+.trace-item strong{font-size:12px}
+.trace-item small{font-size:10px;line-height:1.5;color:var(--muted);overflow-wrap:anywhere}
