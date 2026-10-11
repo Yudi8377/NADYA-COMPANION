@@ -7,7 +7,15 @@ export class HttpChatProvider {
     this.publishableKey = publishableKey ?? NADYA_CONFIG.publishableKey ?? '';
     this.timeoutMs = Math.min(30000, Math.max(1000, Number(timeoutMs) || 20000));
   }
-  async research({ query, context = '' } = {}) {\n    if (!this.endpoint || !this.publishableKey) { const error = new Error('Backend riset belum dikonfigurasi.'); error.code = 'BACKEND_NOT_CONFIGURED'; throw error; }\n    const endpoint = this.endpoint.replace(/\\/nadya-chat$/, '/nadya-research');\n    const response = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json', apikey: this.publishableKey }, body: JSON.stringify({ query: String(query || '').slice(0, 800), context: String(context || '').slice(0, 3000) }), credentials: 'omit', signal: AbortSignal.timeout(this.timeoutMs) });\n    const payload = await response.json().catch(() => ({}));\n    if (!response.ok) { const error = new Error(payload.error || 'Riset online belum tersedia.'); error.code = payload.code || 'RESEARCH_UNAVAILABLE'; throw error; }\n    return payload;\n  }\n  async respond({ messages, memories = [], persona = {} } = {}) {
+  async research({ query, context = '' } = {}) {
+    if (!this.endpoint || !this.publishableKey) { const error = new Error('Backend riset belum dikonfigurasi.'); error.code = 'BACKEND_NOT_CONFIGURED'; throw error; }
+    const endpoint = this.endpoint.replace(/\/nadya-chat$/, '/nadya-research');
+    const response = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json', apikey: this.publishableKey }, body: JSON.stringify({ query: String(query || '').slice(0, 800), context: String(context || '').slice(0, 3000) }), credentials: 'omit', signal: AbortSignal.timeout(this.timeoutMs) });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) { const error = new Error(payload.error || 'Riset online belum tersedia.'); error.code = payload.code || 'RESEARCH_UNAVAILABLE'; throw error; }
+    return payload;
+  }
+  async respond({ messages, memories = [], persona = {} } = {}) {
     if (!Array.isArray(messages) || !messages.length) throw new Error('Tambahkan pesan sebelum memanggil penyedia AI.');
     if (!this.endpoint || !this.publishableKey) {
       const error = new Error('Backend Supabase NADYA belum dikonfigurasi.');
