@@ -1,12 +1,12 @@
 {
   "name": "nadya-ai-companion",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "Indonesian-first, permission-aware AI companion with user-controlled local memory",
   "type": "module",
   "scripts": {
     "test": "node --test",
-    "check": "node --check src/core/runtime.js && node --check src/core/capabilities.js && node --check src/core/memory.js && node --check src/core/orchestrator.js && node --check src/app.js && node --check scripts/build.js",
+    "check": "node --check src/core/runtime.js && node --check src/core/capabilities.js && node --check src/core/memory.js && node --check src/core/orchestrator.js && node --check src/core/provider.js && node --check src/app.js && node --check api/chat.js && node --check scripts/build.js",
     "build": "node scripts/build.js"
   },
   "engines": {

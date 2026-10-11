@@ -10,8 +10,9 @@ Roadmap ini berbasis bukti implementasi, bukan janji tanggal.
 - [x] README dan architecture/security docs.
 
 ## M1 — Conversation and memory (berjalan)
-- [ ] Provider interface dengan provider lokal/dummy untuk tes.
-- [ ] Provider AI generatif nyata di server-side; secret tidak pernah dikirim ke browser.
+- [x] Kontrak provider HTTP di client dan tes mock; fallback tetap lokal.
+- [x] Endpoint server-side kompatibel chat completions, validasi input, timeout, dan secret server-only.
+- [ ] Deploy backend provider, konfigurasi secret, dan uji integrasi live.
 - [x] Persetujuan, peninjauan, ekspor, dan penghapusan memori manual lokal.
 - [ ] Conversation evaluation fixtures.
 

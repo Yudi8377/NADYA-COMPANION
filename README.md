@@ -21,6 +21,10 @@ The first implementation milestone establishes architecture, a runnable client s
 
 **Foundation stage — not production-ready.** No cloud credentials are required for the initial local shell. AI-provider integrations and sensor/tool access must remain opt-in.
 
+## Backend AI (opsional)
+
+Endpoint server-side kompatibel dengan API chat completions tersedia di `api/chat.js`; frontend menggunakan adapter `src/core/provider.js` dan kembali ke runtime lokal jika endpoint tidak tersedia. Untuk mengaktifkannya, deploy repo ini ke hosting yang menjalankan fungsi Node.js (misalnya Vercel) lalu atur `OPENAI_API_KEY` sebagai secret server. Opsional: `OPENAI_MODEL` dan `OPENAI_BASE_URL`. Jangan pernah menaruh API key di kode browser atau commit. GitHub Pages saja hanya menyajikan frontend statis dan tidak menjalankan endpoint API. Lihat [panduan setup provider](docs/PROVIDER_SETUP.md).
+
 ## Development
 
 See [Architecture](docs/ARCHITECTURE.md), [Roadmap](docs/ROADMAP.md), and [Security model](docs/SECURITY.md).

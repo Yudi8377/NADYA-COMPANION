@@ -20,7 +20,7 @@
         <button class="nav-item" data-view="agents"><span>✳</span> Multi-Agent</button>
         <button class="nav-item" data-view="capabilities"><span>◈</span> Kapabilitas</button>
       </nav>
-      <div class="sidebar-bottom"><span class="online-dot"></span><span>Runtime lokal</span><span class="version">v0.2.0</span></div>
+      <div class="sidebar-bottom"><span class="online-dot"></span><span>Runtime lokal</span><span class="version">v0.3.0</span></div>
     </aside>
 
     <main class="main-content">
@@ -28,7 +28,7 @@
 
       <section data-panel="chat" class="workspace">
         <div class="welcome-row"><div><p class="eyebrow">SELAMAT DATANG</p><h2>Halo, aku NADYA.</h2><p class="subheading">Ruang percakapanmu, dirancang untuk tumbuh dengan izin dan kendalimu.</p></div><div class="orb" aria-hidden="true"><div class="orb-core"></div></div></div>
-        <div class="notice"><span class="notice-icon">i</span><p><strong>Mode fondasi aktif.</strong> Percakapan saat ini menggunakan runtime lokal sederhana, belum model AI generatif eksternal. Mikrofon, kamera, dan otomatisasi masih nonaktif.</p></div>
+        <div class="notice"><span class="notice-icon">i</span><p><strong>Mode fondasi aktif.</strong> Percakapan mencoba backend AI server bila tersedia; bila belum tersedia, NADYA kembali ke runtime lokal sederhana. Pesan yang dikirim ke backend diproses oleh provider eksternal. Catatan memori hanya ikut dikirim saat memori lokal aktif. Mikrofon, kamera, dan otomatisasi masih nonaktif.</p></div>
         <div id="chat-messages" class="chat-messages" aria-live="polite"><article class="message assistant"><span class="message-label">NADYA</span><p>Aku siap menemani percakapanmu. Kamu bisa bertanya tentang fondasiku atau melihat kapabilitas yang sedang disiapkan.</p></article></div>
         <form id="chat-form" class="composer"><label class="sr-only" for="message-input">Tulis pesan untuk NADYA</label><textarea id="message-input" rows="1" placeholder="Tulis pesan untuk NADYA…" required></textarea><button class="send-button" type="submit" aria-label="Kirim pesan">↑</button></form>
         <div class="composer-footer"><span id="runtime-status">Runtime lokal aktif · model AI eksternal belum terhubung</span><button id="clear-chat" class="text-button" type="button">Bersihkan sesi</button></div>

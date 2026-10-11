@@ -1,10 +1,12 @@
 import { NadyaRuntime } from './core/runtime.js';
 import { LocalMemoryStore } from './core/memory.js';
 import { NadyaOrchestrator } from './core/orchestrator.js';
+import { HttpChatProvider } from './core/provider.js';
 
 const runtime = new NadyaRuntime();
 const memory = new LocalMemoryStore();
 const orchestrator = new NadyaOrchestrator();
+const provider = new HttpChatProvider();
 const $ = (selector) => document.querySelector(selector);
 const navItems = [...document.querySelectorAll('[data-view]')];
 const views = [...document.querySelectorAll('[data-panel]')];
@@ -39,16 +41,37 @@ function addMessage(role, text) {
   chat.scrollTop = chat.scrollHeight;
 }
 
-form.addEventListener('submit', (event) => {
+form.addEventListener('submit', async (event) => {
   event.preventDefault();
   const message = input.value.trim();
   if (!message) return;
   addMessage('user', message);
-  const result = runtime.respond(message);
-  addMessage('assistant', result.text);
-  status.textContent = 'Runtime lokal aktif · model AI eksternal belum terhubung';
   input.value = '';
-  input.focus();
+  input.disabled = true;
+  const sendButton = form.querySelector('button[type="submit"]');
+  if (sendButton) sendButton.disabled = true;
+  status.textContent = 'Menghubungi backend AI yang dikonfigurasi…';
+  try {
+    const messages = [...runtime.history, { role: 'user', text: message }]
+      .slice(-12)
+      .map((item) => ({ role: item.role, content: item.text }));
+    const approvedMemories = memory.isEnabled() ? memory.list().map((item) => item.text) : [];
+    const result = await provider.respond({ messages, memories: approvedMemories });
+    const now = new Date().toISOString();
+    runtime.history.push({ role: 'user', text: message, at: now });
+    runtime.history.push({ role: 'assistant', text: result.text, intent: 'remote', at: new Date().toISOString() });
+    runtime.history = runtime.history.slice(-24);
+    addMessage('assistant', result.text);
+    status.textContent = `Model AI server aktif · ${result.model}`;
+  } catch (error) {
+    const result = runtime.respond(message);
+    addMessage('assistant', result.text);
+    status.textContent = `Mode lokal aktif · backend AI belum tersedia (${error.code || 'koneksi gagal'}). Pesan tidak dikirim ke memori lokal otomatis.`;
+  } finally {
+    input.disabled = false;
+    if (sendButton) sendButton.disabled = false;
+    input.focus();
+  }
 });
 
 $('#clear-chat').addEventListener('click', () => {
