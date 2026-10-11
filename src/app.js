@@ -2,11 +2,28 @@ import { NadyaRuntime } from './core/runtime.js';
 import { LocalMemoryStore } from './core/memory.js';
 import { NadyaOrchestrator } from './core/orchestrator.js';
 import { HttpChatProvider } from './core/provider.js';
+import { LocalKnowledgeBase } from './core/knowledge.js';
 
 const runtime = new NadyaRuntime();
 const memory = new LocalMemoryStore();
 const orchestrator = new NadyaOrchestrator();
 const provider = new HttpChatProvider();
+const knowledge = new LocalKnowledgeBase();
+const voiceButton = document.querySelector('#voice-toggle');
+const speakButton = document.querySelector('#speak-toggle');
+const remoteToggle = document.querySelector('#remote-toggle');
+const voiceState = document.querySelector('#voice-state');
+const voiceHelp = document.querySelector('#voice-help');
+const voiceOrbs = [document.querySelector('#nadya-orb'), document.querySelector('#voice-orb-mini')].filter(Boolean);
+let recognition = null;
+let speakingEnabled = true;
+function setVoiceState(state, label, help = '') { voiceOrbs.forEach((orb) => { orb.dataset.state = state; }); if (voiceState) voiceState.textContent = label; if (voiceHelp && help) voiceHelp.textContent = help; }
+function speak(text) { if (!speakingEnabled || !('speechSynthesis' in window)) return; window.speechSynthesis.cancel(); const utterance = new SpeechSynthesisUtterance(String(text).slice(0, 1800)); utterance.lang = 'id-ID'; utterance.rate = 1; utterance.pitch = 1.04; utterance.onstart = () => setVoiceState('speaking', 'NADYA sedang berbicara', 'Ikon bercahaya mengikuti suara keluaran.'); utterance.onend = () => setVoiceState('idle', 'NADYA siap', 'Tekan mikrofon untuk berbicara, atau ketik pesan.'); utterance.onerror = () => setVoiceState('idle', 'NADYA siap', 'Suara browser tidak tersedia; kamu tetap bisa membaca jawaban.'); window.speechSynthesis.speak(utterance); }
+const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+if (Recognition) { recognition = new Recognition(); recognition.lang = 'id-ID'; recognition.interimResults = false; recognition.maxAlternatives = 1; recognition.onstart = () => { voiceButton.setAttribute('aria-pressed', 'true'); voiceButton.textContent = '■ Berhenti'; setVoiceState('listening', 'NADYA mendengarkan', 'Silakan berbicara dalam Bahasa Indonesia.'); }; recognition.onresult = (event) => { const transcript = event.results?.[0]?.[0]?.transcript || ''; if (transcript) { input.value = transcript; form.requestSubmit(); } }; recognition.onerror = (event) => { setVoiceState('idle', 'Mikrofon tidak aktif', event.error === 'not-allowed' ? 'Izin mikrofon ditolak. Aktifkan izin browser untuk mencoba lagi.' : 'Pengenalan suara tidak tersedia pada sesi ini. Kamu tetap bisa mengetik.'); }; recognition.onend = () => { voiceButton.setAttribute('aria-pressed', 'false'); voiceButton.textContent = '🎙 Mikrofon'; if (voiceState?.textContent === 'NADYA mendengarkan') setVoiceState('idle', 'NADYA siap', 'Tekan mikrofon untuk berbicara, atau ketik pesan.'); }; } else { voiceButton.disabled = true; voiceButton.title = 'Browser ini tidak mendukung Web Speech API.'; voiceHelp.textContent = 'Browser tidak mendukung pengenalan suara; pengetikan dan suara keluaran tetap tersedia jika didukung.'; }
+voiceButton.addEventListener('click', () => { if (!recognition) return; if (voiceButton.getAttribute('aria-pressed') === 'true') recognition.stop(); else { try { recognition.start(); } catch { setVoiceState('idle', 'Mikrofon belum siap', 'Coba tekan tombol mikrofon sekali lagi.'); } } });
+speakButton.addEventListener('click', () => { speakingEnabled = !speakingEnabled; speakButton.setAttribute('aria-pressed', String(speakingEnabled)); speakButton.textContent = speakingEnabled ? '🔊 Suara aktif' : '🔇 Suara mati'; if (!speakingEnabled && 'speechSynthesis' in window) window.speechSynthesis.cancel(); setVoiceState('idle', 'NADYA siap', speakingEnabled ? 'Suara jawaban diaktifkan.' : 'Suara jawaban dimatikan.'); });
+remoteToggle.addEventListener('change', () => { status.textContent = remoteToggle.checked ? 'AI online diizinkan; penggunaan provider mungkin berbiaya.' : 'Mode lokal aktif · tanpa biaya API.'; });
 const $ = (selector) => document.querySelector(selector);
 const navItems = [...document.querySelectorAll('[data-view]')];
 const views = [...document.querySelectorAll('[data-panel]')];
@@ -50,23 +67,37 @@ form.addEventListener('submit', async (event) => {
   input.disabled = true;
   const sendButton = form.querySelector('button[type="submit"]');
   if (sendButton) sendButton.disabled = true;
-  status.textContent = 'Menghubungi backend AI yang dikonfigurasi…';
+  setVoiceState('thinking', 'NADYA sedang memproses', 'Mencari pengetahuan lokal yang relevan.');
   try {
-    const messages = [...runtime.history, { role: 'user', text: message }]
-      .slice(-12)
-      .map((item) => ({ role: item.role, content: item.text }));
-    const approvedMemories = memory.isEnabled() ? memory.list().map((item) => item.text) : [];
-    const result = await provider.respond({ messages, memories: approvedMemories });
-    const now = new Date().toISOString();
-    runtime.history.push({ role: 'user', text: message, at: now });
-    runtime.history.push({ role: 'assistant', text: result.text, intent: 'remote', at: new Date().toISOString() });
-    runtime.history = runtime.history.slice(-24);
+    let result;
+    if (remoteToggle.checked) {
+      status.textContent = 'Menghubungi provider AI online sesuai pilihanmu…';
+      const messages = [...runtime.history, { role: 'user', text: message }].slice(-12).map((item) => ({ role: item.role, content: item.text }));
+      const approvedMemories = memory.isEnabled() ? memory.list().map((item) => item.text) : [];
+      result = await provider.respond({ messages, memories: approvedMemories });
+      runtime.history.push({ role: 'user', text: message, at: new Date().toISOString() }, { role: 'assistant', text: result.text, intent: 'remote', at: new Date().toISOString() });
+      runtime.history = runtime.history.slice(-24);
+      status.textContent = `Model AI server aktif · ${result.model}`;
+    } else {
+      const top = knowledge.search(message)[0];
+      if (top && top.score >= 2) {
+        result = { text: top.text, mode: 'local-knowledge' };
+        runtime.history.push({ role: 'user', text: message, at: new Date().toISOString() }, { role: 'assistant', text: result.text, intent: top.topic, at: new Date().toISOString() });
+        runtime.history = runtime.history.slice(-24);
+        status.textContent = `Pengetahuan lokal · ${top.topic}`;
+      } else {
+        result = runtime.respond(message);
+        status.textContent = 'Mode lokal aktif · jawaban berbasis aturan; model generatif belum terpasang.';
+      }
+    }
     addMessage('assistant', result.text);
-    status.textContent = `Model AI server aktif · ${result.model}`;
+    speak(result.text);
   } catch (error) {
-    const result = runtime.respond(message);
+    const top = knowledge.search(message)[0];
+    const result = top && top.score >= 2 ? { text: top.text } : runtime.respond(message);
     addMessage('assistant', result.text);
-    status.textContent = `Mode lokal aktif · backend AI belum tersedia (${error.code || 'koneksi gagal'}). Pesan tidak dikirim ke memori lokal otomatis.`;
+    status.textContent = `Provider online gagal (${error.code || 'koneksi gagal'}). NADYA kembali ke mode lokal; cek kemungkinan biaya provider.`;
+    speak(result.text);
   } finally {
     input.disabled = false;
     if (sendButton) sendButton.disabled = false;
