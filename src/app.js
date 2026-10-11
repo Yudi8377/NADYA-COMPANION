@@ -12,7 +12,20 @@ const knowledge = new LocalKnowledgeBase();
 const personaDefaults = { role: 'friend', gender: 'feminine', avatar: 'orb', style: 'adaptive', language: 'id', pauses: 'balanced', voiceName: '' };
 let persona = { ...personaDefaults };
 try { persona = { ...personaDefaults, ...JSON.parse(localStorage.getItem('nadya.persona.v1') || '{}') }; } catch {}
-const personaNames = { feminine: 'NADYA', masculine: 'ARYA', neutral: 'NADYA' };\nlet availableVoices = [];\nfunction refreshVoiceOptions() {\n  if (!(\"speechSynthesis\" in window)) return;\n  availableVoices = window.speechSynthesis.getVoices();\n  const select = document.querySelector('#persona-voice-name');\n  if (!select) return;\n  const previous = persona.voiceName || select.value;\n  select.replaceChildren();\n  const automatic = document.createElement('option'); automatic.value = ''; automatic.textContent = 'Otomatis — pilih suara yang cocok'; select.append(automatic);\n  availableVoices.forEach((voice) => { const option = document.createElement('option'); option.value = voice.name; option.textContent = voice.name + ' (' + voice.lang + ')'; select.append(option); });\n  if (availableVoices.some((voice) => voice.name === previous)) select.value = previous;\n}\nif (\"speechSynthesis\" in window) { refreshVoiceOptions(); window.speechSynthesis.onvoiceschanged = refreshVoiceOptions; }
+const personaNames = { feminine: 'NADYA', masculine: 'ARYA', neutral: 'NADYA' };
+let availableVoices = [];
+function refreshVoiceOptions() {
+  if (!("speechSynthesis" in window)) return;
+  availableVoices = window.speechSynthesis.getVoices();
+  const select = document.querySelector('#persona-voice-name');
+  if (!select) return;
+  const previous = persona.voiceName || select.value;
+  select.replaceChildren();
+  const automatic = document.createElement('option'); automatic.value = ''; automatic.textContent = 'Otomatis — pilih suara yang cocok'; select.append(automatic);
+  availableVoices.forEach((voice) => { const option = document.createElement('option'); option.value = voice.name; option.textContent = voice.name + ' (' + voice.lang + ')'; select.append(option); });
+  if (availableVoices.some((voice) => voice.name === previous)) select.value = previous;
+}
+if ("speechSynthesis" in window) { refreshVoiceOptions(); window.speechSynthesis.onvoiceschanged = refreshVoiceOptions; }
 const avatarGlyphs = { orb: '🔵', star: '✨', leaf: '🌿', moon: '🌙', sun: '☀️', cat: '🐱', fox: '🦊', owl: '🦉', robot: '🤖' };
 const languageTags = { id: 'id-ID', jv: 'jv-ID', su: 'su-ID', mad: 'id-ID', mixed: 'id-ID' };
 function companionName() { return personaNames[persona.gender] || 'NADYA'; }
@@ -25,7 +38,8 @@ function applyPersona() {
   const mini = document.querySelector('#voice-orb-mini');
   if (mini) { mini.dataset.avatar = persona.avatar; const span = mini.querySelector('span'); if (span) span.textContent = persona.avatar === 'orb' ? '' : (avatarGlyphs[persona.avatar] || '🔵'); }
   const title = document.querySelector('.topbar h1'); if (title) title.textContent = 'Ruang ' + companionName();
-  const footer = document.querySelector('.footer span'); if (footer) footer.textContent = companionName() + ' AI COMPANION';\n  const welcome = document.querySelector('[data-panel=\"chat\"] .welcome-row h2'); if (welcome) welcome.textContent = 'Halo, aku ' + companionName() + '.';
+  const footer = document.querySelector('.footer span'); if (footer) footer.textContent = companionName() + ' AI COMPANION';
+  const welcome = document.querySelector('[data-panel="chat"] .welcome-row h2'); if (welcome) welcome.textContent = 'Halo, aku ' + companionName() + '.';
   if (recognition) recognition.lang = languageTags[persona.language] || 'id-ID';
   const fields = { 'persona-role': persona.role, 'persona-gender': persona.gender, 'persona-avatar': persona.avatar, 'persona-style': persona.style, 'persona-language': persona.language, 'persona-pauses': persona.pauses, 'persona-voice-name': persona.voiceName || '' };
   Object.entries(fields).forEach(([id, value]) => { const el = document.getElementById(id); if (el) el.value = value; });
@@ -65,7 +79,8 @@ function speak(text) {
   let candidates = voiceList.filter((voice) => voice.lang.toLowerCase().startsWith(lang.split('-')[0].toLowerCase()));
   if (!candidates.length && lang !== 'id-ID') candidates = voiceList.filter((voice) => voice.lang.toLowerCase().startsWith('id'));
   const wanted = persona.gender === 'masculine' ? malePattern : persona.gender === 'feminine' ? femalePattern : null;
-  const selected = (persona.voiceName && voiceList.find((voice) => voice.name === persona.voiceName)) || (wanted ? candidates.find((voice) => wanted.test(voice.name)) : null);\n  const genderMismatch = persona.gender === 'masculine' && (!selected || femalePattern.test(selected.name));
+  const selected = (persona.voiceName && voiceList.find((voice) => voice.name === persona.voiceName)) || (wanted ? candidates.find((voice) => wanted.test(voice.name)) : null);
+  const genderMismatch = persona.gender === 'masculine' && (!selected || femalePattern.test(selected.name));
   const chunks = clean.match(/[^.!?]+[.!?]+|[^.!?]+$/g)?.map((part) => part.trim()).filter(Boolean) || [clean];
   let chunkIndex = 0;
   const speakNext = () => {
@@ -434,7 +449,8 @@ function renderJournal() {
   entries.forEach((entry) => {
     const card=document.createElement('article'); card.className='memory-item';
     const content=document.createElement('div'); const title=document.createElement('strong'); title.textContent=entry.emotion + ' · ' + new Date(entry.createdAt).toLocaleString('id-ID');
-    const body=document.createElement('p'); body.textContent=[entry.need && 'Kebutuhan: '+entry.need,entry.gratitude && 'Disyukuri: '+entry.gratitude,entry.challenge && 'Tantangan: '+entry.challenge,entry.step && 'Langkah kecil: '+entry.step].filter(Boolean).join('\n') || 'Entri tanpa catatan tambahan.';
+    const body=document.createElement('p'); body.textContent=[entry.need && 'Kebutuhan: '+entry.need,entry.gratitude && 'Disyukuri: '+entry.gratitude,entry.challenge && 'Tantangan: '+entry.challenge,entry.step && 'Langkah kecil: '+entry.step].filter(Boolean).join('
+') || 'Entri tanpa catatan tambahan.';
     content.append(title,body); const remove=document.createElement('button'); remove.className='outline-button danger-button'; remove.type='button'; remove.textContent='Hapus';
     remove.addEventListener('click',()=>{writeLocalArray(JOURNAL_KEY,readLocalArray(JOURNAL_KEY).filter(x=>x.id!==entry.id));renderJournal();});
     card.append(content,remove); journalList.append(card);
