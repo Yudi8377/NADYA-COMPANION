@@ -19,6 +19,9 @@
         <button class="nav-item active" data-view="chat"><span>◌</span> Percakapan</button>
         <button class="nav-item" data-view="memory"><span>⌘</span> Memori & Privasi</button>
         <button class="nav-item" data-view="persona"><span>✿</span> Persona & Suara</button>
+        <button class="nav-item" data-view="journal"><span>♡</span> Mental Wealth Journal</button>
+        <button class="nav-item" data-view="growth"><span>↗</span> Personal Growth Map</button>
+        <button class="nav-item" data-view="knowledge"><span>⌕</span> Knowledge Intelligence</button>
         <button class="nav-item" data-view="agents"><span>✳</span> Multi-Agent</button>
         <button class="nav-item" data-view="capabilities"><span>◈</span> Kapabilitas</button>
       </nav>
@@ -70,6 +73,44 @@
         <div class="section-heading"><p class="eyebrow">ORKESTRASI</p><h2>Multi-Agent</h2><p class="subheading">NADYA akan menjadi orchestrator; agen spesialis bekerja dalam batas tugas dan izin yang jelas.</p></div>
         <div class="agent-grid"><article class="agent-card"><span class="agent-icon">✧</span><h3>Conversation</h3><p>Memahami konteks dan menjaga alur dialog.</p><span class="state state-disabled">rencana</span></article><article class="agent-card"><span class="agent-icon">⌕</span><h3>Knowledge & Research</h3><p>Mencari dan merangkum sumber dengan jejak bukti.</p><span class="state state-disabled">rencana</span></article><article class="agent-card"><span class="agent-icon">⌁</span><h3>Planning</h3><p>Mengurai tujuan menjadi langkah yang dapat diverifikasi.</p><span class="state state-ready">aktif lokal</span></article><article class="agent-card"><span class="agent-icon">⛨</span><h3>Device & Workflow</h3><p>Menjalankan tindakan hanya setelah izin dan konfirmasi.</p><span class="state state-disabled">rencana</span></article></div>
         <form id="agent-task-form" class="agent-task-form"><label for="agent-task-input">Apa yang ingin kamu capai?</label><textarea id="agent-task-input" rows="3" maxlength="500" placeholder="Contoh: Susun rencana belajar Matematika selama dua minggu…" required></textarea><button class="primary-button" type="submit">Susun rencana</button></form><p id="agent-plan-status" class="muted-note" aria-live="polite">Agen perencana lokal siap. Rencana berbasis aturan, bukan model AI generatif.</p><div id="agent-plan" class="agent-plan" aria-live="polite"></div><section class="trace-panel"><div class="trace-panel-heading"><div><h3>Jejak eksekusi</h3><p class="muted-label">Riwayat lokal untuk pemeriksaan</p></div><div class="memory-actions"><button id="export-agent-traces" class="outline-button" type="button">Ekspor jejak</button><button id="clear-agent-traces" class="outline-button danger-button" type="button">Hapus jejak</button></div></div><div id="agent-trace-list" class="trace-list"></div></section><div class="notice"><span class="notice-icon">i</span><p>Perencana lokal sudah dapat dijalankan dan langkahnya bisa ditandai selesai. Agen percakapan generatif, riset web, dan eksekusi tool eksternal belum aktif.</p></div>
+      </section>
+
+      <section data-panel="journal" class="workspace" hidden>
+        <div class="section-heading"><p class="eyebrow">REFLEKSI PRIBADI · LOKAL</p><h2>Mental Wealth Journal</h2><p class="subheading">Jurnal opsional untuk mengenali emosi, kebutuhan, rasa syukur, tantangan, dan langkah kecil. Catatan tersimpan hanya di browser ini, tidak otomatis dikirim ke AI.</p></div>
+        <article class="setting-card"><div><h3>Jurnal lokal diaktifkan</h3><p>Centang untuk menyimpan jurnal pada perangkat ini. Kamu bisa mengekspor atau menghapusnya kapan saja.</p></div><label class="toggle"><input id="journal-consent" type="checkbox"><span class="toggle-track"></span><span class="sr-only">Aktifkan jurnal lokal</span></label></article>
+        <form id="journal-form" class="memory-form">
+          <label for="journal-emotion">Emosi yang paling terasa</label><select id="journal-emotion" required><option value="">Pilih bila ingin…</option><option>Senang</option><option>Tenang</option><option>Bersemangat</option><option>Sedih</option><option>Cemas</option><option>Kesal</option><option>Lelah</option><option>Bingung</option><option>Campur aduk</option><option>Sulit dinamai</option></select>
+          <label for="journal-need">Apa yang mungkin sedang kubutuhkan?</label><textarea id="journal-need" rows="2" maxlength="800" placeholder="Misalnya: istirahat, didengarkan, bantuan, ruang pribadi…"></textarea>
+          <label for="journal-gratitude">Hal kecil yang kusyukuri (opsional)</label><textarea id="journal-gratitude" rows="2" maxlength="800" placeholder="Satu hal sederhana hari ini…"></textarea>
+          <label for="journal-challenge">Tantangan hari ini (opsional)</label><textarea id="journal-challenge" rows="2" maxlength="800" placeholder="Apa yang terasa menantang?"></textarea>
+          <label for="journal-step">Satu langkah kecil yang kupilih (opsional)</label><textarea id="journal-step" rows="2" maxlength="800" placeholder="Langkah yang realistis, bukan tuntutan sempurna…"></textarea>
+          <div class="memory-actions"><button class="primary-button" type="submit">Simpan jurnal</button><button id="journal-export" class="outline-button" type="button">Ekspor jurnal</button><button id="journal-clear" class="outline-button danger-button" type="button">Hapus jurnal</button></div>
+        </form><p id="journal-status" class="muted-note" aria-live="polite">Jurnal nonaktif. Aktifkan persetujuan terlebih dahulu.</p><div id="journal-list" class="memory-list"></div>
+        <div class="notice"><span class="notice-icon">i</span><p>Jurnal ini untuk refleksi, bukan diagnosis atau pengganti bantuan profesional. Isi sesedikit atau sebanyak yang nyaman; semua kolom refleksi selain emosi bersifat opsional.</p></div>
+      </section>
+
+      <section data-panel="growth" class="workspace" hidden>
+        <div class="section-heading"><p class="eyebrow">PERKEMBANGAN MILIKMU</p><h2>Personal Growth Map</h2><p class="subheading">Peta refleksi diri tanpa label klinis dan tanpa membandingkanmu dengan orang lain. Pilih area yang ingin kamu kembangkan, bukan untuk memberi nilai pada dirimu.</p></div>
+        <div class="persona-grid">
+          <label class="setting-card persona-setting"><span><strong>Area refleksi</strong><small>Pilih fokus yang paling relevan saat ini.</small></span><select id="growth-area"><option value="self-awareness">Pengenalan diri</option><option value="communication">Komunikasi</option><option value="habits">Kebiasaan</option><option value="learning">Pembelajaran</option><option value="values">Nilai hidup</option><option value="relationships">Hubungan</option></select></label>
+          <label class="setting-card persona-setting"><span><strong>Fokus berikutnya</strong><small>Target kecil yang ingin dicoba.</small></span><input id="growth-goal" maxlength="180" placeholder="Contoh: mendengarkan sebelum membalas"></label>
+        </div>
+        <form id="growth-form" class="memory-form"><label for="growth-reflection">Refleksi singkat</label><textarea id="growth-reflection" rows="3" maxlength="1200" placeholder="Apa yang sudah berjalan, apa yang sulit, atau dukungan apa yang dibutuhkan?"></textarea><button class="primary-button" type="submit">Simpan refleksi lokal</button></form>
+        <p id="growth-status" class="muted-note" aria-live="polite">Refleksi hanya disimpan di browser ini.</p><div id="growth-list" class="memory-list"></div><div class="memory-actions"><button id="growth-export" class="outline-button" type="button">Ekspor peta</button><button id="growth-clear" class="outline-button danger-button" type="button">Hapus semua refleksi</button></div>
+      </section>
+
+      <section data-panel="knowledge" class="workspace" hidden>
+        <div class="section-heading"><p class="eyebrow">KURASI BERBASIS BUKTI</p><h2>Knowledge Intelligence</h2><p class="subheading">Siapkan materi dengan sumber, tanggal, bukti, dan keterbatasan. Materi baru tidak masuk ke pengetahuan NADYA sebelum kamu menguji dan menyetujuinya.</p></div>
+        <div class="notice"><span class="notice-icon">i</span><p><strong>Status implementasi:</strong> kurasi dan persetujuan lokal tersedia. Pengambilan sumber web otomatis, verifikasi silang otomatis, dan evaluasi riset multi-agent belum aktif; jangan menganggap URL yang dimasukkan sudah diverifikasi NADYA.</p></div>
+        <form id="knowledge-form" class="memory-form">
+          <label for="knowledge-topic">Topik</label><input id="knowledge-topic" maxlength="120" required placeholder="Contoh: teknik belajar dan pengulangan berkala">
+          <label for="knowledge-text">Ringkasan / materi</label><textarea id="knowledge-text" rows="4" maxlength="3000" required placeholder="Tulis ringkasan dengan kata-katamu sendiri; jangan menyalin artikel panjang."></textarea>
+          <label for="knowledge-source">Sumber URL atau rujukan yang bisa diperiksa</label><input id="knowledge-source" maxlength="500" type="url" required placeholder="https://…">
+          <label for="knowledge-date">Tanggal sumber/publikasi (jika diketahui)</label><input id="knowledge-date" type="date">
+          <label for="knowledge-evidence">Jenis bukti</label><select id="knowledge-evidence"><option>Pedoman / lembaga resmi</option><option>Tinjauan sistematis</option><option>Penelitian primer</option><option>Buku akademik</option><option>Artikel populer</option><option>Belum diketahui</option></select>
+          <label for="knowledge-limits">Keterbatasan / ketidakpastian</label><textarea id="knowledge-limits" rows="2" maxlength="1000" required placeholder="Apa yang belum diketahui, konteks yang terbatas, atau alasan untuk berhati-hati?"></textarea>
+          <div class="memory-actions"><button class="primary-button" type="submit">Simpan sebagai draf</button><button id="knowledge-export" class="outline-button" type="button">Ekspor kurasi</button></div>
+        </form><p id="knowledge-status" class="muted-note" aria-live="polite">Draf belum menjadi pengetahuan aktif.</p><div id="knowledge-drafts" class="memory-list"></div>
       </section>
 
       <section data-panel="capabilities" class="workspace" hidden>
