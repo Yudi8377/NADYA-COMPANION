@@ -1,12 +1,12 @@
 import { NadyaRuntime } from './core/runtime.js';
 import { LocalMemoryStore } from './core/memory.js';
-import { NadyaOrchestrator } from './core/orchestrator.js';
+import { NadyaAgentTeam } from './core/agents.js';
 import { HttpChatProvider } from './core/provider.js';
 import { LocalKnowledgeBase } from './core/knowledge.js';
 
 const runtime = new NadyaRuntime();
 const memory = new LocalMemoryStore();
-const orchestrator = new NadyaOrchestrator();
+const orchestrator = new NadyaAgentTeam();
 const provider = new HttpChatProvider();
 const knowledge = new LocalKnowledgeBase();
 const personaDefaults = { role: 'friend', gender: 'feminine', avatar: 'orb', style: 'adaptive', language: 'id', pauses: 'balanced' };
@@ -313,51 +313,45 @@ const planForm = $('#agent-task-form');
 const planInput = $('#agent-task-input');
 const planOutput = $('#agent-plan');
 const planStatus = $('#agent-plan-status');
+const teamAgent = $('#agent-agent-select');
+const teamContext = $('#agent-context-input');
+const workflowConsent = $('#workflow-preview-consent');
 
 function renderPlan(result) {
   planOutput.replaceChildren();
-  const heading = document.createElement('div');
-  heading.className = 'plan-result-heading';
-  const title = document.createElement('h3');
-  title.textContent = 'Rencana kerja';
-  const progress = document.createElement('span');
-  progress.className = 'muted-label';
-  heading.append(title, progress);
-  const list = document.createElement('div');
-  list.className = 'plan-steps';
-  const updateProgress = () => {
-    const checks = [...list.querySelectorAll('input[type="checkbox"]')];
-    const done = checks.filter((check) => check.checked).length;
-    progress.textContent = `${done}/${checks.length} langkah selesai`;
-    planStatus.textContent = 'Agen perencana lokal berbasis aturan; bukan model AI generatif.';
+  const card = document.createElement('article'); card.className = 'agent-result-card';
+  const title = document.createElement('h3'); title.textContent = result.title || result.agentLabel;
+  const mode = document.createElement('p'); mode.className = 'muted-label'; mode.textContent = result.agentLabel + ' · ' + result.mode;
+  const answer = document.createElement('p'); answer.textContent = result.answer || '';
+  card.append(title, mode, answer);
+  const addList = (headingText, items, checks = false) => {
+    if (!items?.length) return;
+    const heading = document.createElement('h4'); heading.textContent = headingText; card.append(heading);
+    const list = document.createElement('div'); list.className = checks ? 'plan-steps' : 'agent-findings';
+    items.forEach((itemText) => {
+      if (checks) {
+        const label = document.createElement('label'); label.className = 'plan-step';
+        const check = document.createElement('input'); check.type = 'checkbox';
+        const text = document.createElement('span'); text.textContent = itemText;
+        label.append(check, text); list.append(label);
+      } else { const p = document.createElement('p'); p.textContent = '• ' + itemText; list.append(p); }
+    });
+    card.append(list);
   };
-  result.steps.forEach((step) => {
-    const label = document.createElement('label');
-    label.className = 'plan-step';
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.addEventListener('change', updateProgress);
-    const text = document.createElement('span');
-    text.textContent = step;
-    label.append(checkbox, text);
-    list.append(label);
-  });
-  planOutput.append(heading, list);
-  updateProgress();
+  addList('Temuan / batasan', result.findings);
+  addList('Langkah kerja', result.steps, true);
+  if (result.next) { const next = document.createElement('p'); next.className = 'notice'; next.textContent = 'Langkah berikutnya: ' + result.next; card.append(next); }
+  if (result.requiresConfirmation) { const guard = document.createElement('p'); guard.className = 'notice'; guard.textContent = 'PENGAMAN AKTIF: pratinjau saja. Tidak ada aksi perangkat atau layanan eksternal yang dijalankan.'; card.append(guard); }
+  planOutput.append(card);
 }
 
 planForm.addEventListener('submit', (event) => {
   event.preventDefault();
-  const result = orchestrator.run(planInput.value);
-  if (!result.ok) {
-    planStatus.textContent = result.message;
-    return;
-  }
-  renderPlan(result);
-  renderTraces();
-  planStatus.textContent = `Agen ${result.agentLabel} menyusun rencana lokal untuk: ${result.goal}`;
+  const result = orchestrator.run({ task: planInput.value, agent: teamAgent?.value || 'auto', context: teamContext?.value || '', consent: Boolean(workflowConsent?.checked) });
+  if (!result.ok) { planStatus.textContent = result.message; return; }
+  renderPlan(result); renderTraces();
+  planStatus.textContent = result.agentLabel + ' berjalan lokal (' + result.mode + '). ' + (result.requiresConfirmation ? 'Hanya pratinjau aman; tidak ada tindakan eksternal.' : 'Periksa hasil sebelum mengandalkannya.');
 });
-
 const traceList = $('#agent-trace-list');
 const exportTracesButton = $('#export-agent-traces');
 const clearTracesButton = $('#clear-agent-traces');
@@ -376,7 +370,7 @@ function renderTraces() {
     const item = document.createElement('article');
     item.className = 'trace-item';
     const title = document.createElement('strong');
-    title.textContent = trace.agentId === 'planner' ? 'Planning Agent' : trace.agentId;
+    title.textContent = ({conversation:'Conversation Agent',research:'Knowledge & Research Agent',planning:'Planning Agent',workflow:'Device & Workflow Agent'})[trace.agentId] || trace.agentId;
     const meta = document.createElement('small');
     meta.textContent = `${new Date(trace.at).toLocaleString('id-ID')} · ${trace.mode} · ${trace.stepCount} langkah`;
     item.append(title, meta);
