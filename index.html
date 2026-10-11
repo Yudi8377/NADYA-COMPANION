@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10151f">
+  <meta name="description" content="NADYA AI COMPANION — companion AI berbahasa Indonesia dengan kapabilitas yang transparan dan aman secara default.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css">
+  <title>NADYA AI COMPANION</title>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Navigasi utama">
+      <a class="brand" href="#home" aria-label="NADYA beranda"><span class="brand-mark">N</span><span><strong>NADYA</strong><small>AI COMPANION</small></span></a>
+      <div class="nav-label">RUANG NADYA</div>
+      <nav>
+        <button class="nav-item active" data-view="chat"><span>◌</span> Percakapan</button>
+        <button class="nav-item" data-view="memory"><span>⌘</span> Memori & Privasi</button>
+        <button class="nav-item" data-view="agents"><span>✳</span> Multi-Agent</button>
+        <button class="nav-item" data-view="capabilities"><span>◈</span> Kapabilitas</button>
+      </nav>
+      <div class="sidebar-bottom"><span class="online-dot"></span><span>Runtime lokal</span><span class="version">v0.1.0</span></div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar"><div><span class="eyebrow">PERSONAL INTELLIGENCE</span><h1>Ruang NADYA</h1></div><div class="top-status"><span class="status-dot"></span><span>Fondasi lokal</span></div></header>
+
+      <section data-panel="chat" class="workspace">
+        <div class="welcome-row"><div><p class="eyebrow">SELAMAT DATANG</p><h2>Halo, aku NADYA.</h2><p class="subheading">Ruang percakapanmu, dirancang untuk tumbuh dengan izin dan kendalimu.</p></div><div class="orb" aria-hidden="true"><div class="orb-core"></div></div></div>
+        <div class="notice"><span class="notice-icon">i</span><p><strong>Mode fondasi aktif.</strong> Percakapan saat ini menggunakan runtime lokal sederhana, belum model AI generatif eksternal. Mikrofon, kamera, dan otomatisasi masih nonaktif.</p></div>
+        <div id="chat-messages" class="chat-messages" aria-live="polite"><article class="message assistant"><span class="message-label">NADYA</span><p>Aku siap menemani percakapanmu. Kamu bisa bertanya tentang fondasiku atau melihat kapabilitas yang sedang disiapkan.</p></article></div>
+        <form id="chat-form" class="composer"><label class="sr-only" for="message-input">Tulis pesan untuk NADYA</label><textarea id="message-input" rows="1" placeholder="Tulis pesan untuk NADYA…" required></textarea><button class="send-button" type="submit" aria-label="Kirim pesan">↑</button></form>
+        <div class="composer-footer"><span id="runtime-status">Runtime lokal aktif · model AI eksternal belum terhubung</span><button id="clear-chat" class="text-button" type="button">Bersihkan sesi</button></div>
+      </section>
+
+      <section data-panel="memory" class="workspace" hidden>
+        <div class="section-heading"><p class="eyebrow">KENDALI PENGGUNA</p><h2>Memori & Privasi</h2><p class="subheading">Memori permanen harus transparan, dapat diperiksa, dan bisa dihapus.</p></div>
+        <article class="setting-card"><div><h3>Memori jangka panjang</h3><p>Versi awal belum menyimpan percakapan secara permanen. Mengaktifkan persetujuan demo tidak akan menyimpan data apa pun.</p></div><label class="toggle"><input id="memory-toggle" type="checkbox"><span class="toggle-track"></span><span class="sr-only">Setujui memori demo</span></label></article>
+        <p id="memory-note" class="muted-note">Memori permanen nonaktif. Versi ini tidak menyimpan pesan ke penyimpanan permanen.</p>
+        <article class="info-card"><span class="info-symbol">◇</span><div><h3>Prinsip memori NADYA</h3><p>Persetujuan eksplisit · lihat dan koreksi · ekspor · hapus · pisahkan konteks sesi dari memori permanen.</p></div></article>
+      </section>
+
+      <section data-panel="agents" class="workspace" hidden>
+        <div class="section-heading"><p class="eyebrow">ORKESTRASI</p><h2>Multi-Agent</h2><p class="subheading">NADYA akan menjadi orchestrator; agen spesialis bekerja dalam batas tugas dan izin yang jelas.</p></div>
+        <div class="agent-grid"><article class="agent-card"><span class="agent-icon">✧</span><h3>Conversation</h3><p>Memahami konteks dan menjaga alur dialog.</p><span class="state state-disabled">rencana</span></article><article class="agent-card"><span class="agent-icon">⌕</span><h3>Knowledge & Research</h3><p>Mencari dan merangkum sumber dengan jejak bukti.</p><span class="state state-disabled">rencana</span></article><article class="agent-card"><span class="agent-icon">⌁</span><h3>Planning</h3><p>Mengurai tujuan menjadi langkah yang dapat diverifikasi.</p><span class="state state-disabled">rencana</span></article><article class="agent-card"><span class="agent-icon">⛨</span><h3>Device & Workflow</h3><p>Menjalankan tindakan hanya setelah izin dan konfirmasi.</p><span class="state state-disabled">rencana</span></article></div>
+        <div class="notice"><span class="notice-icon">i</span><p>Panel ini menjelaskan rancangan, bukan menandakan agen AI sudah aktif. Orchestrator dan agent execution belum diimplementasikan.</p></div>
+      </section>
+
+      <section data-panel="capabilities" class="workspace" hidden>
+        <div class="section-heading"><p class="eyebrow">RUNTIME CONTROL</p><h2>Kapabilitas</h2><p class="subheading">Status berasal dari registry runtime. Tidak ada integrasi yang aktif secara diam-diam.</p></div>
+        <div id="capability-list" class="capability-list"></div>
+        <div class="security-footnote"><span>⛨</span><p><strong>Secure by default</strong><br>Kapabilitas yang belum dikonfigurasi atau belum diizinkan akan ditolak oleh runtime.</p></div>
+      </section>
+      <footer class="footer"><span>NADYA AI COMPANION</span><span>Dirancang dengan privasi, persetujuan, dan bukti implementasi.</span></footer>
+    </main>
+  </div>
+  <script type="module" src="src/app.js"></script>
+</body>
+</html>
