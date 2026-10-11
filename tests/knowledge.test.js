@@ -42,3 +42,12 @@ test('bundled mental wellness knowledge is available offline and cites sources',
   assert.ok(boundaries);
   assert.match(boundaries.text, /menghormati persetujuan/i);
 });
+
+
+test('psychology learning levels and Indonesian language starter knowledge are searchable', () => {
+  const kb = new LocalKnowledgeBase(new MemoryStorage());
+  assert.match(kb.search('psikologi level expert')[0].text, /pendidikan formal/i);
+  assert.match(kb.search('bahasa jawa matur nuwun')[0].text, /unggah-ungguh/i);
+  assert.match(kb.search('bahasa sunda punten')[0].text, /hatur nuhun/i);
+  assert.match(kb.search('bahasa gaul spill')[0].text, /berubah cepat/i);
+});
