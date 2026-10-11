@@ -9,6 +9,28 @@ const memory = new LocalMemoryStore();
 const orchestrator = new NadyaOrchestrator();
 const provider = new HttpChatProvider();
 const knowledge = new LocalKnowledgeBase();
+const personaDefaults = { role: 'friend', gender: 'feminine', avatar: 'orb', style: 'adaptive', language: 'id', pauses: 'balanced' };
+let persona = { ...personaDefaults };
+try { persona = { ...personaDefaults, ...JSON.parse(localStorage.getItem('nadya.persona.v1') || '{}') }; } catch {}
+const personaNames = { feminine: 'NADYA', masculine: 'ARYA', neutral: 'NADYA' };
+const avatarGlyphs = { orb: '🔵', star: '✨', leaf: '🌿', moon: '🌙', sun: '☀️', cat: '🐱', fox: '🦊', owl: '🦉', robot: '🤖' };
+const languageTags = { id: 'id-ID', jv: 'jv-ID', su: 'su-ID', mad: 'id-ID', mixed: 'id-ID' };
+function companionName() { return personaNames[persona.gender] || 'NADYA'; }
+function applyPersona() {
+  document.querySelectorAll('.brand strong').forEach((el) => { el.textContent = companionName(); });
+  document.querySelectorAll('.brand small').forEach((el) => { el.textContent = persona.gender === 'masculine' ? 'AI COMPANION · ARYA' : 'AI COMPANION'; });
+  document.querySelectorAll('.message-label').forEach((el) => { if (el.textContent === 'NADYA' || el.textContent === 'ARYA') el.textContent = companionName(); });
+  const orb = document.querySelector('#nadya-orb');
+  if (orb) { orb.dataset.avatar = persona.avatar; orb.setAttribute('aria-label', 'Tekan untuk memulai percakapan suara dengan ' + companionName()); const core = orb.querySelector('.orb-core'); if (core) core.textContent = persona.avatar === 'orb' ? '' : (avatarGlyphs[persona.avatar] || '🔵'); }
+  const mini = document.querySelector('#voice-orb-mini');
+  if (mini) { mini.dataset.avatar = persona.avatar; const span = mini.querySelector('span'); if (span) span.textContent = persona.avatar === 'orb' ? '' : (avatarGlyphs[persona.avatar] || '🔵'); }
+  const title = document.querySelector('.topbar h1'); if (title) title.textContent = 'Ruang ' + companionName();
+  const footer = document.querySelector('.footer span'); if (footer) footer.textContent = companionName() + ' AI COMPANION';
+  if (recognition) recognition.lang = languageTags[persona.language] || 'id-ID';
+  const fields = { 'persona-role': persona.role, 'persona-gender': persona.gender, 'persona-avatar': persona.avatar, 'persona-style': persona.style, 'persona-language': persona.language, 'persona-pauses': persona.pauses };
+  Object.entries(fields).forEach(([id, value]) => { const el = document.getElementById(id); if (el) el.value = value; });
+}
+
 const voiceButton = document.querySelector('#voice-toggle');
 const speakButton = document.querySelector('#speak-toggle');
 const remoteToggle = document.querySelector('#remote-toggle');
