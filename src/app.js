@@ -1,6 +1,8 @@
 import { NadyaRuntime } from './core/runtime.js';
+import { LocalMemoryStore } from './core/memory.js';
 
 const runtime = new NadyaRuntime();
+const memory = new LocalMemoryStore();
 const $ = (selector) => document.querySelector(selector);
 const navItems = [...document.querySelectorAll('[data-view]')];
 const views = [...document.querySelectorAll('[data-panel]')];
@@ -8,6 +10,13 @@ const chat = $('#chat-messages');
 const form = $('#chat-form');
 const input = $('#message-input');
 const status = $('#runtime-status');
+const memoryToggle = $('#memory-toggle');
+const memoryForm = $('#memory-form');
+const memoryInput = $('#memory-input');
+const memoryList = $('#memory-list');
+const memoryStatus = $('#memory-status');
+const exportMemoryButton = $('#export-memory');
+const clearMemoryButton = $('#clear-memory');
 
 function showView(name) {
   navItems.forEach((item) => item.classList.toggle('active', item.dataset.view === name));
@@ -43,14 +52,95 @@ form.addEventListener('submit', (event) => {
 $('#clear-chat').addEventListener('click', () => {
   runtime.clearSession();
   chat.replaceChildren();
-  addMessage('assistant', 'Sesi percakapan lokal telah dibersihkan. Tidak ada riwayat yang disinkronkan ke cloud.');
+  addMessage('assistant', 'Sesi percakapan lokal telah dibersihkan. Catatan memori yang kamu simpan secara manual tidak ikut dihapus.');
 });
 
-$('#memory-toggle').addEventListener('change', (event) => {
-  const note = $('#memory-note');
-  note.textContent = event.target.checked
-    ? 'Persetujuan demo aktif: preferensi hanya dapat disimpan lokal setelah fitur memori diimplementasikan. Belum ada data yang disimpan.'
-    : 'Memori permanen nonaktif. Versi ini tidak menyimpan pesan ke penyimpanan permanen.';
+function renderMemory() {
+  const enabled = memory.isEnabled();
+  memoryToggle.checked = enabled;
+  memoryList.replaceChildren();
+  exportMemoryButton.disabled = !enabled;
+  const items = memory.list();
+  if (!enabled) {
+    const empty = document.createElement('p');
+    empty.className = 'empty-state';
+    empty.textContent = 'Memori sedang nonaktif. Aktifkan persetujuan untuk melihat dan mengelola catatan yang tersimpan di browser ini.';
+    memoryList.append(empty);
+    memoryStatus.textContent = 'Memori nonaktif. Data yang sudah tersimpan tetap berada di perangkat sampai kamu menghapusnya.';
+    return;
+  }
+  if (!items.length) {
+    const empty = document.createElement('p');
+    empty.className = 'empty-state';
+    empty.textContent = 'Belum ada catatan. Tambahkan hanya hal yang memang ingin NADYA ingat di perangkat ini.';
+    memoryList.append(empty);
+  }
+  for (const item of items) {
+    const article = document.createElement('article');
+    article.className = 'memory-item';
+    const content = document.createElement('div');
+    const note = document.createElement('p');
+    note.textContent = item.text;
+    const date = document.createElement('small');
+    date.textContent = new Date(item.createdAt).toLocaleString('id-ID');
+    content.append(note, date);
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.className = 'outline-button danger-button';
+    remove.textContent = 'Hapus';
+    remove.setAttribute('aria-label', 'Hapus catatan memori');
+    remove.addEventListener('click', () => {
+      memory.remove(item.id);
+      memoryStatus.textContent = 'Catatan memori dihapus dari browser ini.';
+      renderMemory();
+    });
+    article.append(content, remove);
+    memoryList.append(article);
+  }
+  memoryStatus.textContent = `${items.length} catatan tersimpan hanya di browser/perangkat ini. Pesan chat tidak disimpan otomatis.`;
+}
+
+memoryToggle.addEventListener('change', () => {
+  memory.setConsent(memoryToggle.checked);
+  memoryStatus.textContent = memoryToggle.checked
+    ? 'Persetujuan aktif. Memori tetap manual: hanya catatan yang kamu tambahkan yang akan disimpan.'
+    : 'Persetujuan dinonaktifkan. Catatan lama tetap tersimpan di perangkat tetapi disembunyikan sampai persetujuan diaktifkan kembali.';
+  renderMemory();
+});
+
+memoryForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+  try {
+    memory.add(memoryInput.value);
+    memoryInput.value = '';
+    memoryStatus.textContent = 'Catatan disimpan secara lokal.';
+    renderMemory();
+    memoryInput.focus();
+  } catch (error) {
+    memoryStatus.textContent = error.message;
+  }
+});
+
+exportMemoryButton.addEventListener('click', () => {
+  try {
+    const blob = new Blob([memory.exportJSON()], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = 'nadya-memory-export.json';
+    anchor.click();
+    URL.revokeObjectURL(url);
+    memoryStatus.textContent = 'Ekspor memori dibuat di perangkat ini.';
+  } catch (error) {
+    memoryStatus.textContent = error.message;
+  }
+});
+
+clearMemoryButton.addEventListener('click', () => {
+  if (!window.confirm('Hapus semua catatan memori NADYA yang tersimpan di browser ini? Tindakan ini tidak dapat dibatalkan.')) return;
+  memory.clear();
+  memoryStatus.textContent = 'Semua catatan memori dihapus dari browser ini.';
+  renderMemory();
 });
 
 function renderCapabilities() {
@@ -73,6 +163,7 @@ function renderCapabilities() {
   }
 }
 renderCapabilities();
+renderMemory();
 
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {

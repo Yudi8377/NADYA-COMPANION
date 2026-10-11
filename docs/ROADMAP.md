@@ -2,17 +2,17 @@
 
 Roadmap ini berbasis bukti implementasi, bukan janji tanggal.
 
-## M0 — Foundation (sedang dibangun)
+## M0 — Foundation
 - [x] Repository ownership dan prinsip produk didokumentasikan.
-- [ ] Responsive PWA shell berbahasa Indonesia.
-- [ ] Local runtime contract dan capability registry fail-closed.
-- [ ] Unit tests dan GitHub Actions CI.
-- [ ] README dan architecture/security docs.
+- [x] Responsive PWA shell berbahasa Indonesia.
+- [x] Local runtime contract dan capability registry fail-closed.
+- [x] Unit tests dan GitHub Actions CI.
+- [x] README dan architecture/security docs.
 
-## M1 — Conversation and memory
+## M1 — Conversation and memory (berjalan)
 - [ ] Provider interface dengan provider lokal/dummy untuk tes.
-- [ ] Provider AI nyata di server-side; secret tidak pernah dikirim ke browser.
-- [ ] Consent, review, export, and delete for memory.
+- [ ] Provider AI generatif nyata di server-side; secret tidak pernah dikirim ke browser.
+- [x] Persetujuan, peninjauan, ekspor, dan penghapusan memori manual lokal.
 - [ ] Conversation evaluation fixtures.
 
 ## M2 — Agent orchestration
@@ -34,4 +34,4 @@ Roadmap ini berbasis bukti implementasi, bukan janji tanggal.
 - [ ] Android and desktop adapters.
 - [ ] Packaging, signing, update strategy, backup/restore, and release QA.
 
-A milestone is complete only when code, tests, docs, and CI evidence agree.
+A milestone is complete only when code, tests, docs, and CI evidence agree. Browser-local memory is not cloud sync and does not automatically store chat messages.

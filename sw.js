@@ -1,5 +1,5 @@
-const CACHE = 'nadya-shell-v1';
-const SHELL = ['./', './index.html', './styles.css', './manifest.webmanifest', './icon.svg', './src/app.js', './src/core/runtime.js', './src/core/capabilities.js'];
+const CACHE = 'nadya-shell-v2';
+const SHELL = ['./', './index.html', './styles.css', './manifest.webmanifest', './icon.svg', './src/app.js', './src/core/runtime.js', './src/core/capabilities.js', './src/core/memory.js'];
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL)));
   self.skipWaiting();

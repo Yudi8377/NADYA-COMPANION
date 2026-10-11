@@ -20,7 +20,7 @@
         <button class="nav-item" data-view="agents"><span>✳</span> Multi-Agent</button>
         <button class="nav-item" data-view="capabilities"><span>◈</span> Kapabilitas</button>
       </nav>
-      <div class="sidebar-bottom"><span class="online-dot"></span><span>Runtime lokal</span><span class="version">v0.1.0</span></div>
+      <div class="sidebar-bottom"><span class="online-dot"></span><span>Runtime lokal</span><span class="version">v0.2.0</span></div>
     </aside>
 
     <main class="main-content">
@@ -35,10 +35,17 @@
       </section>
 
       <section data-panel="memory" class="workspace" hidden>
-        <div class="section-heading"><p class="eyebrow">KENDALI PENGGUNA</p><h2>Memori & Privasi</h2><p class="subheading">Memori permanen harus transparan, dapat diperiksa, dan bisa dihapus.</p></div>
-        <article class="setting-card"><div><h3>Memori jangka panjang</h3><p>Versi awal belum menyimpan percakapan secara permanen. Mengaktifkan persetujuan demo tidak akan menyimpan data apa pun.</p></div><label class="toggle"><input id="memory-toggle" type="checkbox"><span class="toggle-track"></span><span class="sr-only">Setujui memori demo</span></label></article>
-        <p id="memory-note" class="muted-note">Memori permanen nonaktif. Versi ini tidak menyimpan pesan ke penyimpanan permanen.</p>
-        <article class="info-card"><span class="info-symbol">◇</span><div><h3>Prinsip memori NADYA</h3><p>Persetujuan eksplisit · lihat dan koreksi · ekspor · hapus · pisahkan konteks sesi dari memori permanen.</p></div></article>
+        <div class="section-heading"><p class="eyebrow">KENDALI PENGGUNA</p><h2>Memori & Privasi</h2><p class="subheading">Kamu menentukan apa yang disimpan. Pesan percakapan tidak pernah ditambahkan otomatis ke memori.</p></div>
+        <article class="setting-card"><div><h3>Izinkan memori lokal</h3><p>Jika aktif, catatan yang kamu masukkan secara manual disimpan di browser/perangkat ini saja. Ini bukan sinkronisasi cloud.</p></div><label class="toggle"><input id="memory-toggle" type="checkbox"><span class="toggle-track"></span><span class="sr-only">Aktifkan memori lokal</span></label></article>
+        <p id="memory-status" class="muted-note" aria-live="polite">Memori nonaktif.</p>
+        <form id="memory-form" class="memory-form">
+          <label for="memory-input">Tambah catatan yang ingin diingat (maksimal 500 karakter)</label>
+          <textarea id="memory-input" rows="3" maxlength="500" placeholder="Contoh: Aku lebih suka jawaban dalam Bahasa Indonesia…" required></textarea>
+          <div class="memory-actions"><button class="primary-button" type="submit">Simpan catatan</button><button id="export-memory" class="outline-button" type="button">Ekspor JSON</button><button id="clear-memory" class="outline-button danger-button" type="button">Hapus semua memori</button></div>
+        </form>
+        <div class="memory-list-heading"><h3>Catatan tersimpan</h3><span class="muted-label">Hanya di perangkat ini</span></div>
+        <div id="memory-list" class="memory-list"></div>
+        <article class="info-card"><span class="info-symbol">◇</span><div><h3>Kontrol dan batasan</h3><p>Memori dapat dilihat, diekspor, dan dihapus. Menonaktifkan persetujuan menyembunyikan catatan tetapi tidak menghapusnya; gunakan “Hapus semua memori” untuk menghapus permanen dari browser ini.</p></div></article>
       </section>
 
       <section data-panel="agents" class="workspace" hidden>
