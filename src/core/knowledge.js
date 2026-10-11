@@ -62,14 +62,14 @@ export class LocalKnowledgeBase {
       return { item, score };
     }).filter((entry) => entry.score > 0).sort((a, b) => b.score - a.score).slice(0, 3).map(({ item, score }) => ({ id: item.id, topic: item.topic, text: item.answer || item.text, source: item.source || 'user-approved', sources: item.sources || [], score }));
   }
-  addApproved({ topic, text, source }) {
+  addApproved({ topic, text, source, publishedAt = '', evidenceType = 'Belum diketahui', limitations = '' }) {
     if (!this.storage) throw new Error('Penyimpanan lokal tidak tersedia.');
     const cleanTopic = String(topic || '').trim().slice(0, 120);
     const cleanText = String(text || '').trim().slice(0, 3000);
     const cleanSource = String(source || '').trim().slice(0, 500);
     if (!cleanTopic || !cleanText || !cleanSource) throw new Error('Topik, isi, dan sumber wajib diisi.');
     const entries = this.userEntries();
-    const entry = { id: globalThis.crypto?.randomUUID?.() || `knowledge-${Date.now().toString(36)}`, topic: cleanTopic, text: cleanText, source: cleanSource, createdAt: new Date().toISOString() };
+    const entry = { id: globalThis.crypto?.randomUUID?.() || `knowledge-${Date.now().toString(36)}`, topic: cleanTopic, text: cleanText, source: cleanSource, publishedAt: String(publishedAt || '').slice(0, 10), evidenceType: String(evidenceType || 'Belum diketahui').slice(0, 100), limitations: String(limitations || '').trim().slice(0, 1000), createdAt: new Date().toISOString(), status: 'approved-local' };
     this.storage.setItem(this.storageKey, JSON.stringify([entry, ...entries].slice(0, 100)));
     return entry;
   }
