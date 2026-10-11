@@ -145,7 +145,7 @@ form.addEventListener('submit', async (event) => {
       status.textContent = 'Menghubungi provider AI online sesuai pilihanmu…';
       const messages = [...runtime.history, { role: 'user', text: message }].slice(-12).map((item) => ({ role: item.role, content: item.text }));
       const approvedMemories = memory.isEnabled() ? memory.list().map((item) => item.text) : [];
-      result = await provider.respond({ messages, memories: approvedMemories });
+      result = await provider.respond({ messages, memories: approvedMemories, persona });
       runtime.history.push({ role: 'user', text: message, at: new Date().toISOString() }, { role: 'assistant', text: result.text, intent: 'remote', at: new Date().toISOString() });
       runtime.history = runtime.history.slice(-24);
       status.textContent = `Model AI server aktif · ${result.model}`;
