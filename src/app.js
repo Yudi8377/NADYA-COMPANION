@@ -84,13 +84,17 @@ function speak(text) {
   const languageCode = lang.split('-')[0].toLowerCase();
   const candidates = voiceList.filter((voice) => String(voice.lang || '').toLowerCase().startsWith(languageCode));
   const requestedVoice = persona.voiceName && candidates.find((voice) => voice.name === persona.voiceName);
-  // Prefer a voice matching ARYA's masculine presentation, but preserve Indonesian
-  // pronunciation over a foreign voice if this device lacks a tagged male Indonesian voice.
+  // ARYA must never silently fall back to a feminine/unknown voice. Browser voice
+  // metadata is imperfect, so require a recognizable masculine voice for ARYA.
+  // NADYA similarly prefers a recognizable feminine voice, then an Indonesian voice.
   const selected = persona.gender === 'masculine'
-    ? (requestedVoice || candidates.find((voice) => maleVoiceName(voice.name)) || candidates[0] || null)
-    : (requestedVoice || candidates.find((voice) => femalePattern.test(voice.name)) || candidates[0] || null);
+    ? ((requestedVoice && maleVoiceName(requestedVoice.name) ? requestedVoice : null) || candidates.find((voice) => maleVoiceName(voice.name)) || null)
+    : ((requestedVoice && femalePattern.test(requestedVoice.name) ? requestedVoice : null) || candidates.find((voice) => femalePattern.test(voice.name)) || candidates[0] || null);
   if (!selected) {
-    setVoiceState('idle', companionName() + ': suara Bahasa Indonesia tidak tersedia', 'Perangkat/browser ini belum menyediakan suara Bahasa Indonesia. Aktifkan atau pasang suara Bahasa Indonesia di pengaturan Windows, lalu muat ulang halaman. Saya tidak akan menggantinya dengan suara Inggris.');
+    const help = persona.gender === 'masculine'
+      ? 'Suara maskulin Bahasa Indonesia tidak terdeteksi di perangkat ini. Buka Pengaturan suara dan pilih suara id-ID bernama pria/Andika/Budi jika tersedia. Pilih suara lain hanya jika kamu yakin suaranya maskulin. ARYA tidak akan memakai suara perempuan sebagai pengganti.'
+      : 'Perangkat/browser ini belum menyediakan suara Bahasa Indonesia. Aktifkan atau pasang suara Bahasa Indonesia di pengaturan Windows, lalu muat ulang halaman.';
+    setVoiceState('idle', companionName() + ': suara yang sesuai tidak tersedia', help);
     return;
   }
   const chunks = clean.match(/[^.!?]+[.!?]+|[^.!?]+$/g)?.map((part) => part.trim()).filter(Boolean) || [clean];
