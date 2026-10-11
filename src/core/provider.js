@@ -9,7 +9,7 @@ export class HttpChatProvider {
   }
   async research({ query, context = '' } = {}) {
     if (!this.endpoint || !this.publishableKey) { const error = new Error('Backend riset belum dikonfigurasi.'); error.code = 'BACKEND_NOT_CONFIGURED'; throw error; }
-    const endpoint = this.endpoint.replace(/\/nadya-chat$/, '/nadya-research');
+    const endpoint = this.endpoint.endsWith('/nadya-chat') ? this.endpoint.slice(0, -'/nadya-chat'.length) + '/nadya-research' : this.endpoint.replace('nadya-chat', 'nadya-research');
     const response = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json', apikey: this.publishableKey }, body: JSON.stringify({ query: String(query || '').slice(0, 800), context: String(context || '').slice(0, 3000) }), credentials: 'omit', signal: AbortSignal.timeout(this.timeoutMs) });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) { const error = new Error(payload.error || 'Riset online belum tersedia.'); error.code = payload.code || 'RESEARCH_UNAVAILABLE'; throw error; }
