@@ -1,0 +1,14 @@
+{
+  "name": "nadya-ai-companion",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Indonesian-first, permission-aware AI companion foundation",
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check src/core/runtime.js && node --check src/core/capabilities.js && node --check src/app.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
