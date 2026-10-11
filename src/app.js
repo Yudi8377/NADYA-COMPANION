@@ -26,15 +26,15 @@ function speak(text) {
   if (!speakingEnabled || !('speechSynthesis' in window)) { if (voiceSessionActive) startListeningAgain(); return; }
   if (recognition && voiceSessionActive) { recognitionShouldRestart = true; try { recognition.stop(); } catch {} }
   window.speechSynthesis.cancel();
-  let clean = String(text).slice(0, 1800).replace(/NADYA\\s+AI\\s+COMPANION/gi, 'Nadya AI Companion');
-  if (persona.style === 'casual' || persona.style === 'playful') clean = clean.replace(/^Baik[,!.]?\\s+/i, 'Oke, ').replace(/^Tentu[,!.]?\\s+/i, 'Bisa banget, ');
+  let clean = String(text).slice(0, 1800).replace(/NADYA\s+AI\s+COMPANION/gi, 'Nadya AI Companion');
+  if (persona.style === 'casual' || persona.style === 'playful') clean = clean.replace(/^Baik[,!.]?\s+/i, 'Oke, ').replace(/^Tentu[,!.]?\s+/i, 'Bisa banget, ');
   if (persona.pauses === 'balanced' && clean.length > 90 && !/^(hmm|hmmm|mmm|ehm)/i.test(clean)) clean = 'Hmm… ' + clean;
-  const englishWords = (clean.match(/\\b(the|and|you|your|hello|thank|please|what|how|is|are|companion|welcome|good|morning|afternoon|evening|today|tomorrow|because|with|from|about)\\b/gi) || []).length;
-  const indonesianWords = (clean.match(/\\b(dan|yang|aku|kamu|untuk|dengan|dalam|adalah|bisa|tidak|sudah|akan|karena|selamat|terima|kasih|bagaimana|apa|ini|itu)\\b/gi) || []).length;
+  const englishWords = (clean.match(/\b(the|and|you|your|hello|thank|please|what|how|is|are|companion|welcome|good|morning|afternoon|evening|today|tomorrow|because|with|from|about)\b/gi) || []).length;
+  const indonesianWords = (clean.match(/\b(dan|yang|aku|kamu|untuk|dengan|dalam|adalah|bisa|tidak|sudah|akan|karena|selamat|terima|kasih|bagaimana|apa|ini|itu)\b/gi) || []).length;
   const lang = languageTags[persona.language] || (englishWords > indonesianWords ? 'en-US' : 'id-ID');
   const utterance = new SpeechSynthesisUtterance(clean);
   utterance.lang = lang;
-  const emotional = /maaf|sedih|berat|kecewa|takut|cemas|khawatir|sulit/i.test(clean) ? 'gentle' : /selamat|hebat|berhasil|keren|bagus|senang|mantap/i.test(clean) ? 'bright' : /\\?/.test(clean) ? 'curious' : 'calm';
+  const emotional = /maaf|sedih|berat|kecewa|takut|cemas|khawatir|sulit/i.test(clean) ? 'gentle' : /selamat|hebat|berhasil|keren|bagus|senang|mantap/i.test(clean) ? 'bright' : /\?/.test(clean) ? 'curious' : 'calm';
   const voiceList = window.speechSynthesis.getVoices();
   const malePattern = /male|pria|andika|guy|david|alex|daniel/i;
   const femalePattern = /female|perempuan|woman|zira|samantha|karen|tessa/i;
