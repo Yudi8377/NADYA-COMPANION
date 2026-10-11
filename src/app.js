@@ -74,9 +74,9 @@ function speak(text) {
     .replace(/\s+([,.!?;:])/g, '$1')
     .replace(/([.!?])([A-ZÀ-Ý])/g, '$1 $2');
   if (persona.style === 'casual' || persona.style === 'playful') clean = clean.replace(/^Baik[,!.]?\s+/i, 'Oke, ').replace(/^Tentu[,!.]?\s+/i, 'Bisa banget, ');
-  const englishWords = (clean.match(/\b(the|and|you|your|hello|thank|please|what|how|is|are|companion|welcome|good|morning|afternoon|evening|today|tomorrow|because|with|from|about)\b/gi) || []).length;
-  const indonesianWords = (clean.match(/\b(dan|yang|aku|kamu|untuk|dengan|dalam|adalah|bisa|tidak|sudah|akan|karena|selamat|terima|kasih|bagaimana|apa|ini|itu)\b/gi) || []).length;
-  const lang = persona.language === 'jv' ? 'jv-ID' : persona.language === 'su' || persona.language === 'mad' || persona.language === 'mixed' ? 'id-ID' : (englishWords > indonesianWords ? 'en-US' : 'id-ID');
+  // Speech language follows the selected persona language, never an English-word-count guess.
+  // Keep Indonesian persona speech in Indonesian even if the reply contains a few English terms.
+  const lang = persona.language === 'jv' ? 'jv-ID' : 'id-ID';
   const voiceList = availableVoices.length ? availableVoices : window.speechSynthesis.getVoices();
   const femalePattern = /\b(?:female|perempuan|woman|zira|samantha|karen|tessa|gadis|aria|jenny|michelle|eva|susan|hazel|heera|monica|sara|victoria)\b/i;
   let candidates = voiceList.filter((voice) => voice.lang.toLowerCase().startsWith(lang.split('-')[0].toLowerCase()));
