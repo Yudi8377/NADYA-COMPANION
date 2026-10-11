@@ -345,9 +345,26 @@ function renderPlan(result) {
   planOutput.append(card);
 }
 
-planForm.addEventListener('submit', (event) => {
+planForm.addEventListener('submit', async (event) => {
   event.preventDefault();
-  const result = orchestrator.run({ task: planInput.value, agent: teamAgent?.value || 'auto', context: teamContext?.value || '', consent: Boolean(workflowConsent?.checked) });
+  const task = planInput.value.trim();
+  const chosenAgent = teamAgent?.value || 'auto';
+  const context = teamContext?.value || '';
+  const selectedAgent = chosenAgent === 'auto' ? orchestrator.run({ task, context }).agentId : chosenAgent;
+  if (selectedAgent === 'research' && remoteToggle.checked) {
+    planStatus.textContent = 'Mengambil hasil pencarian web dan membandingkan sumber…';
+    try {
+      const result = await provider.research({ query: task, context });
+      renderPlan({ ok: true, agentId: 'research', agentLabel: 'Knowledge & Research Agent', mode: 'web-retrieval-with-provenance', title: 'Hasil riset web', answer: result.summary || 'Hasil pencarian diterima. Periksa sumber dan keterbatasannya sebelum mengambil kesimpulan.', findings: [...(result.findings || []), ...(result.sources || []).map((s) => 'Sumber: ' + s.title + ' — ' + s.url + (s.publishedDate ? ' · ' + s.publishedDate : ''))], steps: result.nextSteps || [], next: result.next || 'Buka sumber primer dan periksa klaim utama secara langsung.' });
+      planStatus.textContent = 'Riset selesai. Hasil pencarian bukan jaminan bahwa semua klaim telah terbukti.';
+    } catch (error) {
+      renderPlan(orchestrator.run({ task, agent: 'research', context }));
+      planStatus.textContent = 'Riset web belum tersedia (' + (error.code || 'koneksi gagal') + '). Analisis lokal ditampilkan; backend memerlukan secret TAVILY_API_KEY.';
+    }
+    renderTraces();
+    return;
+  }
+  const result = orchestrator.run({ task, agent: chosenAgent, context, consent: Boolean(workflowConsent?.checked) });
   if (!result.ok) { planStatus.textContent = result.message; return; }
   renderPlan(result); renderTraces();
   planStatus.textContent = result.agentLabel + ' berjalan lokal (' + result.mode + '). ' + (result.requiresConfirmation ? 'Hanya pratinjau aman; tidak ada tindakan eksternal.' : 'Periksa hasil sebelum mengandalkannya.');
