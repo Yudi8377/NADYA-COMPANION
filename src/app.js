@@ -48,15 +48,17 @@ function speak(text) {
   if (!speakingEnabled || !('speechSynthesis' in window)) { if (voiceSessionActive) startListeningAgain(); return; }
   if (recognition && voiceSessionActive) { recognitionShouldRestart = true; try { recognition.stop(); } catch {} }
   window.speechSynthesis.cancel();
-  let clean = String(text).slice(0, 1800).replace(/NADYA\s+AI\s+COMPANION/gi, 'Nadya AI Companion');
-  if (persona.style === 'casual' || persona.style === 'playful') clean = clean.replace(/^Baik[,!.]?\s+/i, 'Oke, ').replace(/^Tentu[,!.]?\s+/i, 'Bisa banget, ');
-  if (persona.pauses === 'balanced' && clean.length > 90 && !/^(hmm|hmmm|mmm|ehm)/i.test(clean)) clean = 'Hmm… ' + clean;
-  const englishWords = (clean.match(/\b(the|and|you|your|hello|thank|please|what|how|is|are|companion|welcome|good|morning|afternoon|evening|today|tomorrow|because|with|from|about)\b/gi) || []).length;
-  const indonesianWords = (clean.match(/\b(dan|yang|aku|kamu|untuk|dengan|dalam|adalah|bisa|tidak|sudah|akan|karena|selamat|terima|kasih|bagaimana|apa|ini|itu)\b/gi) || []).length;
-  const lang = languageTags[persona.language] || (englishWords > indonesianWords ? 'en-US' : 'id-ID');
-  const utterance = new SpeechSynthesisUtterance(clean);
-  utterance.lang = lang;
-  const emotional = /maaf|sedih|berat|kecewa|takut|cemas|khawatir|sulit/i.test(clean) ? 'gentle' : /selamat|hebat|berhasil|keren|bagus|senang|mantap/i.test(clean) ? 'bright' : /\?/.test(clean) ? 'curious' : 'calm';
+  // Jangan membacakan "hmm" di awal setiap jawaban. Jeda berpikir ditampilkan saat menunggu,
+  // sedangkan jeda bicara berasal dari tanda baca dan pemenggalan kalimat.
+  let clean = String(text).slice(0, 1800)
+    .replace(/NADYA\\s+AI\\s+COMPANION/gi, 'Nadya AI Companion')
+    .replace(/\\s+/g, ' ')
+    .replace(/\\s+([,.!?;:])/g, '$1')
+    .replace(/([.!?])([A-ZÀ-Ý])/g, '$1 $2');
+  if (persona.style === 'casual' || persona.style === 'playful') clean = clean.replace(/^Baik[,!.]?\\s+/i, 'Oke, ').replace(/^Tentu[,!.]?\\s+/i, 'Bisa banget, ');
+  const englishWords = (clean.match(/\\b(the|and|you|your|hello|thank|please|what|how|is|are|companion|welcome|good|morning|afternoon|evening|today|tomorrow|because|with|from|about)\\b/gi) || []).length;
+  const indonesianWords = (clean.match(/\\b(dan|yang|aku|kamu|untuk|dengan|dalam|adalah|bisa|tidak|sudah|akan|karena|selamat|terima|kasih|bagaimana|apa|ini|itu)\\b/gi) || []).length;
+  const lang = persona.language === 'jv' ? 'jv-ID' : persona.language === 'su' || persona.language === 'mad' || persona.language === 'mixed' ? 'id-ID' : (englishWords > indonesianWords ? 'en-US' : 'id-ID');
   const voiceList = window.speechSynthesis.getVoices();
   const malePattern = /male|pria|andika|guy|david|alex|daniel/i;
   const femalePattern = /female|perempuan|woman|zira|samantha|karen|tessa/i;
@@ -64,15 +66,30 @@ function speak(text) {
   if (!candidates.length && lang !== 'id-ID') candidates = voiceList.filter((voice) => voice.lang.toLowerCase().startsWith('id'));
   const wanted = persona.gender === 'masculine' ? malePattern : persona.gender === 'feminine' ? femalePattern : null;
   const selected = wanted ? candidates.find((voice) => wanted.test(voice.name)) : null;
-  if (selected) utterance.voice = selected;
-  utterance.rate = emotional === 'gentle' ? 0.91 : emotional === 'bright' ? 1.04 : persona.style === 'playful' ? 1.02 : 0.97;
-  utterance.pitch = persona.gender === 'masculine' ? 0.84 : persona.gender === 'feminine' ? 1.08 : 1.0;
-  if (emotional === 'gentle') utterance.pitch *= 0.97;
-  if (emotional === 'bright') utterance.pitch *= 1.04;
-  utterance.onstart = () => setVoiceState('speaking', companionName() + ' sedang berbicara', selected ? 'Menggunakan suara ' + selected.name + '.' : 'Suara dipilih dari yang tersedia di browser; intonasi bergantung perangkat.');
-  utterance.onend = () => { setVoiceState('idle', voiceSessionActive ? 'Mode percakapan suara aktif' : companionName() + ' siap', voiceSessionActive ? 'Silakan lanjut berbicara; mikrofon akan aktif kembali.' : 'Tekan mikrofon untuk memulai percakapan suara.'); if (voiceSessionActive) startListeningAgain(); };
-  utterance.onerror = () => { setVoiceState('idle', companionName() + ' siap', 'Suara browser tidak tersedia; kamu tetap bisa membaca jawaban.'); if (voiceSessionActive) startListeningAgain(); };
-  window.speechSynthesis.speak(utterance);
+  const chunks = clean.match(/[^.!?]+[.!?]+|[^.!?]+$/g)?.map((part) => part.trim()).filter(Boolean) || [clean];
+  let chunkIndex = 0;
+  const speakNext = () => {
+    if (chunkIndex >= chunks.length) {
+      setVoiceState('idle', voiceSessionActive ? 'Mode percakapan suara aktif' : companionName() + ' siap', voiceSessionActive ? 'Silakan lanjut berbicara; mikrofon akan aktif kembali.' : 'Tekan mikrofon untuk memulai percakapan suara.');
+      if (voiceSessionActive) startListeningAgain();
+      return;
+    }
+    const part = chunks[chunkIndex++];
+    const emotional = /maaf|sedih|berat|kecewa|takut|cemas|khawatir|sulit/i.test(part) ? 'gentle' : /selamat|hebat|berhasil|keren|bagus|senang|mantap/i.test(part) ? 'bright' : /\\?/.test(part) ? 'curious' : 'calm';
+    const utterance = new SpeechSynthesisUtterance(part);
+    utterance.lang = lang;
+    if (selected) utterance.voice = selected;
+    // Rentang kecil membuat suara lebih nyaman; kualitas intonasi tetap mengikuti mesin suara browser.
+    utterance.rate = emotional === 'gentle' ? 0.91 : emotional === 'bright' ? 1.0 : persona.style === 'playful' ? 0.99 : 0.95;
+    utterance.pitch = persona.gender === 'masculine' ? 0.91 : persona.gender === 'feminine' ? 1.04 : 1.0;
+    if (emotional === 'gentle') utterance.pitch *= 0.98;
+    if (emotional === 'bright') utterance.pitch *= 1.02;
+    utterance.onstart = () => setVoiceState('speaking', companionName() + ' sedang berbicara', selected ? 'Menggunakan suara ' + selected.name + '.' : 'Suara dan intonasi mengikuti dukungan browser/perangkat.');
+    utterance.onend = () => { if (chunkIndex < chunks.length) { window.setTimeout(speakNext, /[,;:]$/.test(part) ? 100 : 170); } else speakNext(); };
+    utterance.onerror = () => { if (chunkIndex < chunks.length) speakNext(); else { setVoiceState('idle', companionName() + ' siap', 'Suara browser tidak tersedia; jawaban tetap bisa dibaca.'); if (voiceSessionActive) startListeningAgain(); } };
+    window.speechSynthesis.speak(utterance);
+  };
+  speakNext();
 }
 function startListeningAgain() {
   if (!recognition || !voiceSessionActive) return;
@@ -160,12 +177,12 @@ form.addEventListener('submit', async (event) => {
   input.disabled = true;
   const sendButton = form.querySelector('button[type="submit"]');
   if (sendButton) sendButton.disabled = true;
-  setVoiceState('thinking', 'NADYA sedang memproses', 'Mencari pengetahuan lokal yang relevan.');
+  setVoiceState('thinking', 'NADYA sedang berpikir…', 'Hmm… sebentar ya, aku sedang menyusun jawaban.');
   try {
     let result;
     if (remoteToggle.checked) {
       status.textContent = 'Menghubungi provider AI online sesuai pilihanmu…';
-      const messages = [...runtime.history, { role: 'user', text: message }].slice(-12).map((item) => ({ role: item.role, content: item.text }));
+      const messages = [...runtime.history, { role: 'user', text: message }].slice(-8).map((item) => ({ role: item.role, content: item.text }));
       const approvedMemories = memory.isEnabled() ? memory.list().map((item) => item.text) : [];
       result = await provider.respond({ messages, memories: approvedMemories, persona });
       runtime.history.push({ role: 'user', text: message, at: new Date().toISOString() }, { role: 'assistant', text: result.text, intent: 'remote', at: new Date().toISOString() });
