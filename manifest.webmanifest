@@ -1,0 +1,10 @@
+{
+  "name": "NADYA AI COMPANION",
+  "short_name": "NADYA",
+  "description": "Companion AI berbahasa Indonesia dengan kapabilitas transparan.",
+  "lang": "id-ID",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0d1119",
+  "theme_color": "#10151f"
+}
