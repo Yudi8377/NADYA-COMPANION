@@ -2,8 +2,8 @@ import { NADYA_CONFIG } from '../config.js';
 
 export class HttpChatProvider {
   constructor({ endpoint, publishableKey, timeoutMs = 20000 } = {}) {
-    const configuredUrl = String(NADYA_CONFIG.supabaseUrl || '').replace(/\\/+$/, '');
-    this.endpoint = endpoint || (configuredUrl ? `${configuredUrl}/functions/v1/nadya-chat` : '');
+    const configuredUrl = String(NADYA_CONFIG.supabaseUrl || '').replace(/\/+$/, '');
+    this.endpoint = endpoint || (configuredUrl ? configuredUrl + '/functions/v1/nadya-chat' : '');
     this.publishableKey = publishableKey ?? NADYA_CONFIG.publishableKey ?? '';
     this.timeoutMs = Math.min(30000, Math.max(1000, Number(timeoutMs) || 20000));
   }
