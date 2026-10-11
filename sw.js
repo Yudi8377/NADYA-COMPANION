@@ -1,4 +1,4 @@
-const CACHE = 'nadya-shell-v6';
+const CACHE = 'nadya-shell-v7';
 const SHELL = ['./', './index.html', './styles.css', './manifest.webmanifest', './icon.svg', './src/config.js', './src/app.js', './src/core/runtime.js', './src/core/capabilities.js', './src/core/memory.js', './src/core/orchestrator.js', './src/core/provider.js', './src/core/chat-contract.js', './src/core/knowledge.js'];
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL)));
@@ -10,8 +10,8 @@ self.addEventListener('activate', (event) => {
 });
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET' || new URL(event.request.url).origin !== self.location.origin) return;
-  event.respondWith(caches.match(event.request).then((cached) => cached || fetch(event.request).then((response) => {
+  event.respondWith(fetch(event.request).then((response) => {
     if (response.ok && response.type === 'basic') { const copy = response.clone(); caches.open(CACHE).then((cache) => cache.put(event.request, copy)); }
     return response;
-  })));
+  }).catch(() => caches.match(event.request)));
 });
