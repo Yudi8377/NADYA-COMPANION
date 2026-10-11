@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#10151f">
   <meta name="description" content="NADYA AI COMPANION — companion AI berbahasa Indonesia dengan kapabilitas yang transparan dan aman secara default.">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="styles.css">
   <title>NADYA AI COMPANION</title>
@@ -27,11 +28,12 @@
       <header class="topbar"><div><span class="eyebrow">PERSONAL INTELLIGENCE</span><h1>Ruang NADYA</h1></div><div class="top-status"><span class="status-dot"></span><span>Fondasi lokal</span></div></header>
 
       <section data-panel="chat" class="workspace">
-        <div class="welcome-row"><div><p class="eyebrow">SELAMAT DATANG</p><h2>Halo, aku NADYA.</h2><p class="subheading">Ruang percakapanmu, dirancang untuk tumbuh dengan izin dan kendalimu.</p></div><div class="orb" aria-hidden="true"><div class="orb-core"></div></div></div>
-        <div class="notice"><span class="notice-icon">i</span><p><strong>Mode fondasi aktif.</strong> Percakapan mencoba backend AI server bila tersedia; bila belum tersedia, NADYA kembali ke runtime lokal sederhana. Pesan yang dikirim ke backend diproses oleh provider eksternal. Catatan memori hanya ikut dikirim saat memori lokal aktif. Mikrofon, kamera, dan otomatisasi masih nonaktif.</p></div>
+        <div class="welcome-row"><div><p class="eyebrow">SELAMAT DATANG</p><h2>Halo, aku NADYA.</h2><p class="subheading">Pendamping suara dan pengetahuan lokal, dirancang untuk tumbuh dengan izin dan kendalimu.</p></div><div class="orb" id="nadya-orb" data-state="idle" aria-hidden="true"><div class="orb-core"></div></div></div>
+        <div class="notice"><span class="notice-icon">i</span><p><strong>Mode fondasi aktif.</strong> Percakapan mencoba backend AI server bila tersedia; bila belum tersedia, NADYA kembali ke runtime lokal sederhana. Pesan yang dikirim ke backend diproses oleh provider eksternal. Catatan memori hanya ikut dikirim saat memori lokal aktif. Mikrofon hanya aktif setelah kamu menekan tombol dan memberi izin browser. Suara keluaran memakai fitur browser; pengenalan suara mungkin membutuhkan layanan browser eksternal.</p></div>
+        <div class="voice-dock"><div class="voice-orb-mini" id="voice-orb-mini" data-state="idle" aria-hidden="true"><span></span></div><div class="voice-copy"><strong id="voice-state">NADYA siap</strong><small id="voice-help">Tekan mikrofon untuk berbicara, atau ketik pesan.</small></div><button id="voice-toggle" class="outline-button voice-button" type="button" aria-pressed="false">🎙 Mikrofon</button><button id="speak-toggle" class="outline-button voice-button" type="button" aria-pressed="true">🔊 Suara aktif</button></div>
         <div id="chat-messages" class="chat-messages" aria-live="polite"><article class="message assistant"><span class="message-label">NADYA</span><p>Aku siap menemani percakapanmu. Kamu bisa bertanya tentang fondasiku atau melihat kapabilitas yang sedang disiapkan.</p></article></div>
         <form id="chat-form" class="composer"><label class="sr-only" for="message-input">Tulis pesan untuk NADYA</label><textarea id="message-input" rows="1" placeholder="Tulis pesan untuk NADYA…" required></textarea><button class="send-button" type="submit" aria-label="Kirim pesan">↑</button></form>
-        <div class="composer-footer"><span id="runtime-status">Runtime lokal aktif · model AI eksternal belum terhubung</span><button id="clear-chat" class="text-button" type="button">Bersihkan sesi</button></div>
+        <div class="composer-footer"><span id="runtime-status">Mode lokal aktif · tanpa biaya API</span><button id="clear-chat" class="text-button" type="button">Bersihkan sesi</button></div>
       </section>
 
       <section data-panel="memory" class="workspace" hidden>
