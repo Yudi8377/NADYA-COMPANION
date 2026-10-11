@@ -58,29 +58,27 @@ let recognitionShouldRestart = false;
 const layoutButton = document.querySelector('#layout-toggle');
 const mainOrb = document.querySelector('#nadya-orb');
 function setVoiceState(state, label, help = '') { voiceOrbs.forEach((orb) => { orb.dataset.state = state; }); if (voiceState) voiceState.textContent = label; if (voiceHelp && help) voiceHelp.textContent = help; }
-function maleVoiceName(name) { return /\b(?:male|pria|ardi|andika|budi|reza|david|mark|alex|daniel|rishi|jorge|thomas|guy|matthew|james|george|ryan|aaron|fred|tom)\b/i.test(String(name)) && !/\b(?:female|woman|zira|samantha|karen|tessa|gadis|aria|jenny|michelle|eva|susan|hazel|heera|monica|sara|victoria)\b/i.test(String(name)); }
 function maleVoiceName(name) {
   const value = String(name || '');
-  return /\\b(?:male|pria|ardi|andika|budi|reza|david|mark|alex|daniel|rishi|jorge|thomas|guy|matthew|james|george|ryan|aaron|fred|tom)\\b/i.test(value)
-    && !/\\b(?:female|woman|zira|samantha|karen|tessa|gadis|aria|jenny|michelle|eva|susan|hazel|heera|monica|sara|victoria)\\b/i.test(value);
+  return /\b(?:male|pria|ardi|andika|budi|reza|david|mark|alex|daniel|rishi|jorge|thomas|guy|matthew|james|george|ryan|aaron|fred|tom)\b/i.test(value)
+    && !/\b(?:female|woman|zira|samantha|karen|tessa|gadis|aria|jenny|michelle|eva|susan|hazel|heera|monica|sara|victoria)\b/i.test(value);
 }
 function speak(text) {
   if (!speakingEnabled || !('speechSynthesis' in window)) { if (voiceSessionActive) startListeningAgain(); return; }
   if (recognition && voiceSessionActive) { recognitionShouldRestart = true; try { recognition.stop(); } catch {} }
   window.speechSynthesis.cancel();
   let clean = String(text).slice(0, 1800)
-    .replace(/NADYA\\s+AI\\s+COMPANION/gi, companionName() + ' AI Companion')
-    .replace(/\\bNADYA\\b/gi, companionName())
-    .replace(/\\s+/g, ' ')
-    .replace(/\\s+([,.!?;:])/g, '$1')
+    .replace(/NADYA\s+AI\s+COMPANION/gi, companionName() + ' AI Companion')
+    .replace(/\bNADYA\b/gi, companionName())
+    .replace(/\s+/g, ' ')
+    .replace(/\s+([,.!?;:])/g, '$1')
     .replace(/([.!?])([A-ZÀ-Ý])/g, '$1 $2');
-  if (persona.style === 'casual' || persona.style === 'playful') clean = clean.replace(/^Baik[,!.]?\\s+/i, 'Oke, ').replace(/^Tentu[,!.]?\\s+/i, 'Bisa banget, ');
-  const englishWords = (clean.match(/\\b(the|and|you|your|hello|thank|please|what|how|is|are|companion|welcome|good|morning|afternoon|evening|today|tomorrow|because|with|from|about)\\b/gi) || []).length;
-  const indonesianWords = (clean.match(/\\b(dan|yang|aku|kamu|untuk|dengan|dalam|adalah|bisa|tidak|sudah|akan|karena|selamat|terima|kasih|bagaimana|apa|ini|itu)\\b/gi) || []).length;
+  if (persona.style === 'casual' || persona.style === 'playful') clean = clean.replace(/^Baik[,!.]?\s+/i, 'Oke, ').replace(/^Tentu[,!.]?\s+/i, 'Bisa banget, ');
+  const englishWords = (clean.match(/\b(the|and|you|your|hello|thank|please|what|how|is|are|companion|welcome|good|morning|afternoon|evening|today|tomorrow|because|with|from|about)\b/gi) || []).length;
+  const indonesianWords = (clean.match(/\b(dan|yang|aku|kamu|untuk|dengan|dalam|adalah|bisa|tidak|sudah|akan|karena|selamat|terima|kasih|bagaimana|apa|ini|itu)\b/gi) || []).length;
   const lang = persona.language === 'jv' ? 'jv-ID' : persona.language === 'su' || persona.language === 'mad' || persona.language === 'mixed' ? 'id-ID' : (englishWords > indonesianWords ? 'en-US' : 'id-ID');
   const voiceList = availableVoices.length ? availableVoices : window.speechSynthesis.getVoices();
-  const femalePattern = /\\b(?:female|perempuan|woman|zira|samantha|karen|tessa|gadis|aria|jenny|michelle|eva|susan|hazel|heera|monica|sara|victoria)\\b/i;
-  const malePattern = /\\b(?:male|pria|ardi|andika|budi|reza|david|mark|alex|daniel|rishi|jorge|thomas|guy|matthew|james|george|ryan|aaron|fred|tom)\\b/i;
+  const femalePattern = /\b(?:female|perempuan|woman|zira|samantha|karen|tessa|gadis|aria|jenny|michelle|eva|susan|hazel|heera|monica|sara|victoria)\b/i;
   let candidates = voiceList.filter((voice) => voice.lang.toLowerCase().startsWith(lang.split('-')[0].toLowerCase()));
   if (!candidates.length && lang !== 'id-ID') candidates = voiceList.filter((voice) => voice.lang.toLowerCase().startsWith('id'));
   const requestedVoice = persona.voiceName && voiceList.find((voice) => voice.name === persona.voiceName);
@@ -100,7 +98,7 @@ function speak(text) {
       return;
     }
     const part = chunks[chunkIndex++];
-    const emotional = /maaf|sedih|berat|kecewa|takut|cemas|khawatir|sulit/i.test(part) ? 'gentle' : /selamat|hebat|berhasil|keren|bagus|senang|mantap/i.test(part) ? 'bright' : /\\?/.test(part) ? 'curious' : 'calm';
+    const emotional = /maaf|sedih|berat|kecewa|takut|cemas|khawatir|sulit/i.test(part) ? 'gentle' : /selamat|hebat|berhasil|keren|bagus|senang|mantap/i.test(part) ? 'bright' : /\?/.test(part) ? 'curious' : 'calm';
     const utterance = new SpeechSynthesisUtterance(part);
     utterance.lang = lang;
     if (selected) utterance.voice = selected;
@@ -236,11 +234,13 @@ form.addEventListener('submit', async (event) => {
         status.textContent = 'Mode lokal aktif · jawaban berbasis aturan; model generatif belum terpasang.';
       }
     }
+    result.text = String(result.text || '').replace(/\bNADYA\b/gi, companionName());
     addMessage('assistant', result.text);
     speak(result.text);
   } catch (error) {
     const top = knowledge.search(message)[0];
     const result = top && top.score >= 2 ? { text: top.text } : runtime.respond(message);
+    result.text = String(result.text || '').replace(/\bNADYA\b/gi, companionName());
     addMessage('assistant', result.text);
     status.textContent = `Provider online gagal (${error.code || 'koneksi gagal'}). NADYA kembali ke mode lokal; cek kemungkinan biaya provider.`;
     speak(result.text);
