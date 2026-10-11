@@ -60,7 +60,7 @@ export class LocalKnowledgeBase {
       for (const term of terms) if (haystack.includes(term)) score += 1;
       for (const keyword of item.keywords || []) if (q.includes(normalize(keyword))) score += 3;
       return { item, score };
-    }).filter((entry) => entry.score > 0).sort((a, b) => b.score - a.score).slice(0, 3).map(({ item, score }) => ({ id: item.id, topic: item.topic, text: item.answer || item.text, source: item.source || 'user-approved', sources: item.sources || [], score }));
+    }).filter((entry) => entry.score > 0).sort((a, b) => b.score - a.score).slice(0, 3).map(({ item, score }) => ({ id: item.id, topic: item.topic, text: item.answer || item.text, source: item.source || 'user-approved', sources: item.sources || (item.source ? [item.source] : []), score }));
   }
   addApproved({ topic, text, source, publishedAt = '', evidenceType = 'Belum diketahui', limitations = '' }) {
     if (!this.storage) throw new Error('Penyimpanan lokal tidak tersedia.');
