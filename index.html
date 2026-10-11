@@ -18,6 +18,7 @@
       <nav>
         <button class="nav-item active" data-view="chat"><span>◌</span> Percakapan</button>
         <button class="nav-item" data-view="memory"><span>⌘</span> Memori & Privasi</button>
+        <button class="nav-item" data-view="persona"><span>✿</span> Persona & Suara</button>
         <button class="nav-item" data-view="agents"><span>✳</span> Multi-Agent</button>
         <button class="nav-item" data-view="capabilities"><span>◈</span> Kapabilitas</button>
       </nav>
@@ -48,6 +49,21 @@
         <div class="memory-list-heading"><h3>Catatan tersimpan</h3><span class="muted-label">Hanya di perangkat ini</span></div>
         <div id="memory-list" class="memory-list"></div>
         <article class="info-card"><span class="info-symbol">◇</span><div><h3>Kontrol dan batasan</h3><p>Memori dapat dilihat, diekspor, dan dihapus. Menonaktifkan persetujuan menyembunyikan catatan tetapi tidak menghapusnya; gunakan “Hapus semua memori” untuk menghapus permanen dari browser ini.</p></div></article>
+      </section>
+
+      <section data-panel="persona" class="workspace" hidden>
+        <div class="section-heading"><p class="eyebrow">PERSONALISASI</p><h2>Persona, Bahasa & Suara</h2><p class="subheading">Atur gaya pendamping tanpa mengubah core, memori, atau identitas teknis aplikasi. Pilihan tersimpan di browser ini.</p></div>
+        <div class="persona-grid">
+          <label class="setting-card persona-setting"><span><strong>Peran pendamping</strong><small>Pilih cara NADYA/ARYA membantu.</small></span><select id="persona-role"><option value="friend">Teman yang hangat</option><option value="parent">Mode orang tua/pengasuh</option><option value="tutor">Tutor belajar</option><option value="coach">Coach kebiasaan</option><option value="mentor">Mentor karier & tujuan</option><option value="calm">Pendamping tenang</option></select></label>
+          <label class="setting-card persona-setting"><span><strong>Identitas suara</strong><small>Nama tampilan dan preferensi suara.</small></span><select id="persona-gender"><option value="feminine">Perempuan · NADYA</option><option value="masculine">Laki-laki · ARYA</option><option value="neutral">Netral · NADYA</option></select></label>
+          <label class="setting-card persona-setting"><span><strong>Avatar</strong><small>Pilih ikon pendamping.</small></span><select id="persona-avatar"><option value="orb">🔵 Orb bercahaya</option><option value="star">✨ Bintang</option><option value="leaf">🌿 Daun</option><option value="moon">🌙 Bulan</option><option value="sun">☀️ Matahari</option><option value="cat">🐱 Kucing</option><option value="fox">🦊 Rubah</option><option value="owl">🦉 Burung hantu</option><option value="robot">🤖 Robot ramah</option></select></label>
+          <label class="setting-card persona-setting"><span><strong>Gaya bahasa</strong><small>Formal sampai santai, sesuai situasi.</small></span><select id="persona-style"><option value="adaptive">Adaptif sesuai konteks</option><option value="polite">Sopan dan jelas</option><option value="casual">Santai, bahasa gaul secukupnya</option><option value="playful">Ceria dan ringan</option></select></label>
+          <label class="setting-card persona-setting"><span><strong>Bahasa utama</strong><small>Bahasa daerah dipakai bila dipilih dan sesuai kemampuan.</small></span><select id="persona-language"><option value="id">Bahasa Indonesia</option><option value="jv">Bahasa Jawa</option><option value="su">Bahasa Sunda</option><option value="mad">Bahasa Madura</option><option value="mixed">Indonesia + Jawa/Sunda</option></select></label>
+          <label class="setting-card persona-setting"><span><strong>Ekspresi percakapan</strong><small>Jeda natural dan kata pengisi yang tidak berlebihan.</small></span><select id="persona-pauses"><option value="balanced">Jeda natural (disarankan)</option><option value="few">Sedikit jeda</option><option value="none">Tanpa kata pengisi</option></select></label>
+        </div>
+        <article class="info-card"><span class="info-symbol">♪</span><div><h3>Suara ekspresif</h3><p>Browser menentukan pilihan suara yang tersedia. Mode laki-laki akan mencari suara pria jika tersedia; jika tidak, browser bisa tetap memakai suara default. Kecepatan, pitch, jeda, dan tanda baca membantu ekspresi, tetapi tidak menjamin intonasi manusiawi di semua perangkat.</p></div></article>
+        <div class="memory-actions"><button id="save-persona" class="primary-button" type="button">Simpan preferensi</button><button id="preview-persona" class="outline-button" type="button">Dengarkan contoh</button><button id="reset-persona" class="outline-button" type="button">Reset</button></div>
+        <p id="persona-status" class="muted-note" aria-live="polite">Preferensi bawaan aktif.</p>
       </section>
 
       <section data-panel="agents" class="workspace" hidden>
