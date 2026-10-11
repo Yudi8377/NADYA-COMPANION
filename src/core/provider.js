@@ -7,7 +7,7 @@ export class HttpChatProvider {
     this.publishableKey = publishableKey ?? NADYA_CONFIG.publishableKey ?? '';
     this.timeoutMs = Math.min(30000, Math.max(1000, Number(timeoutMs) || 20000));
   }
-  async respond({ messages, memories = [] } = {}) {
+  async respond({ messages, memories = [], persona = {} } = {}) {
     if (!Array.isArray(messages) || !messages.length) throw new Error('Tambahkan pesan sebelum memanggil penyedia AI.');
     if (!this.endpoint || !this.publishableKey) {
       const error = new Error('Backend Supabase NADYA belum dikonfigurasi.');
@@ -18,7 +18,7 @@ export class HttpChatProvider {
     const safeMemories = Array.isArray(memories) ? memories.slice(0, 20).map((item) => String(item).slice(0, 500)) : [];
     const controller = new AbortController(); const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
     try {
-      const response = await fetch(this.endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json', apikey: this.publishableKey }, body: JSON.stringify({ messages: safeMessages, memories: safeMemories }), signal: controller.signal, credentials: 'omit' });
+      const response = await fetch(this.endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json', apikey: this.publishableKey }, body: JSON.stringify({ messages: safeMessages, memories: safeMemories, persona }), signal: controller.signal, credentials: 'omit' });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) { const error = new Error(payload.error || 'Penyedia AI belum tersedia.'); error.code = payload.code || 'PROVIDER_UNAVAILABLE'; throw error; }
       if (typeof payload.reply !== 'string' || !payload.reply.trim()) throw new Error('Penyedia AI mengembalikan jawaban kosong.');
