@@ -58,8 +58,16 @@ let recognitionShouldRestart = false;
 const layoutButton = document.querySelector('#layout-toggle');
 const mainOrb = document.querySelector('#nadya-orb');
 function setVoiceState(state, label, help = '') { voiceOrbs.forEach((orb) => { orb.dataset.state = state; }); if (voiceState) voiceState.textContent = label; if (voiceHelp && help) voiceHelp.textContent = help; }
+function maleVoiceName(name) { return /\b(?:male|pria|ardi|andika|budi|reza|david|mark|alex|daniel|rishi|jorge|thomas|guy|matthew|james|george|ryan|aaron|fred|tom)\b/i.test(String(name)) && !/\b(?:female|woman|zira|samantha|karen|tessa|gadis|aria|jenny|michelle|eva|susan|hazel|heera|monica|sara|victoria)\b/i.test(String(name)); }
 function speak(text) {
   if (!speakingEnabled || !('speechSynthesis' in window)) { if (voiceSessionActive) startListeningAgain(); return; }
+  if (persona.gender === 'masculine') {
+    const voices = availableVoices.length ? availableVoices : window.speechSynthesis.getVoices();
+    if (!voices.some((voice) => maleVoiceName(voice.name))) {
+      setVoiceState('idle', 'ARYA: suara pria tidak tersedia', 'Tidak akan diputar suara default yang mungkin terdengar wanita. Tambahkan suara pria di pengaturan Windows/Edge lalu muat ulang suara.');
+      return;
+    }
+  }
   if (recognition && voiceSessionActive) { recognitionShouldRestart = true; try { recognition.stop(); } catch {} }
   window.speechSynthesis.cancel();
   // Jangan membacakan "hmm" di awal setiap jawaban. Jeda berpikir ditampilkan saat menunggu,
@@ -74,8 +82,8 @@ function speak(text) {
   const indonesianWords = (clean.match(/\b(dan|yang|aku|kamu|untuk|dengan|dalam|adalah|bisa|tidak|sudah|akan|karena|selamat|terima|kasih|bagaimana|apa|ini|itu)\b/gi) || []).length;
   const lang = persona.language === 'jv' ? 'jv-ID' : persona.language === 'su' || persona.language === 'mad' || persona.language === 'mixed' ? 'id-ID' : (englishWords > indonesianWords ? 'en-US' : 'id-ID');
   const voiceList = availableVoices.length ? availableVoices : window.speechSynthesis.getVoices();
-  const malePattern = /male|pria|andika|guy|david|alex|daniel|rishi|jorge|thomas|microsoft ardi|microsoft budi|microsoft reza/i;
-  const femalePattern = /female|perempuan|woman|zira|samantha|karen|tessa/i;
+  const malePattern = /\\b(?:male|pria|ardi|andika|budi|reza|david|mark|alex|daniel|rishi|jorge|thomas|guy|matthew|james|george|ryan|aaron|fred|tom)\\b/i;
+  const femalePattern = /\\b(?:female|perempuan|woman|zira|samantha|karen|tessa|gadis|aria|jenny|michelle|eva|susan|hazel|heera|monica|sara|victoria)\\b/i;
   let candidates = voiceList.filter((voice) => voice.lang.toLowerCase().startsWith(lang.split('-')[0].toLowerCase()));
   if (!candidates.length && lang !== 'id-ID') candidates = voiceList.filter((voice) => voice.lang.toLowerCase().startsWith('id'));
   const wanted = persona.gender === 'masculine' ? malePattern : persona.gender === 'feminine' ? femalePattern : null;
@@ -114,7 +122,19 @@ function startListeningAgain() {
 const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 if (Recognition) { recognition = new Recognition(); recognition.lang = 'id-ID'; recognition.interimResults = false; recognition.continuous = true; recognition.maxAlternatives = 1; recognition.onstart = () => { voiceButton.setAttribute('aria-pressed', 'true'); voiceButton.textContent = '■ Akhiri voice'; setVoiceState('listening', companionName() + ' mendengarkan', 'Silakan berbicara; percakapan berlanjut sampai kamu mengakhiri mode voice.'); }; recognition.onresult = (event) => { let transcript = ''; for (let i = event.resultIndex; i < event.results.length; i += 1) { if (event.results[i].isFinal) transcript += `${event.results[i][0]?.transcript || ''} `; } transcript = transcript.trim(); if (transcript) { input.value = transcript; form.requestSubmit(); } }; recognition.onerror = (event) => { if (event.error === 'not-allowed' || event.error === 'service-not-allowed') { voiceSessionActive = false; setVoiceState('idle', 'Mikrofon tidak aktif', 'Izin mikrofon ditolak atau layanan pengenalan suara tidak tersedia.'); } else if (event.error !== 'no-speech' && event.error !== 'aborted') setVoiceState('idle', 'Voice terganggu', 'Kamu tetap bisa mengetik atau mencoba kembali.'); }; recognition.onend = () => { if (voiceSessionActive && recognitionShouldRestart) return; if (voiceSessionActive && !('speechSynthesis' in window && window.speechSynthesis.speaking)) { startListeningAgain(); return; } if (!voiceSessionActive) { voiceButton.setAttribute('aria-pressed', 'false'); voiceButton.textContent = '🎙 Mulai voice'; if (voiceState?.textContent === 'NADYA mendengarkan') setVoiceState('idle', companionName() + ' siap', 'Tekan mikrofon untuk memulai percakapan suara.'); } }; } else { voiceButton.disabled = true; voiceButton.title = 'Browser ini tidak mendukung Web Speech API.'; voiceHelp.textContent = 'Browser tidak mendukung pengenalan suara; pengetikan dan suara keluaran tetap tersedia jika didukung.'; }
 voiceButton.addEventListener('click', () => { if (!recognition) return; if (voiceSessionActive) { voiceSessionActive = false; recognitionShouldRestart = false; try { recognition.stop(); } catch {} if ('speechSynthesis' in window) window.speechSynthesis.cancel(); voiceButton.setAttribute('aria-pressed', 'false'); voiceButton.textContent = '🎙 Mulai voice'; setVoiceState('idle', 'Voice dinonaktifkan', 'Tekan tombol untuk memulai percakapan suara lagi.'); } else { voiceSessionActive = true; voiceButton.setAttribute('aria-pressed', 'true'); voiceButton.textContent = '■ Akhiri voice'; startListeningAgain(); } });
-layoutButton.addEventListener('click', () => { const compact = document.body.classList.toggle('orb-only'); layoutButton.setAttribute('aria-pressed', String(compact)); layoutButton.textContent = compact ? '▤ Tampilan lengkap' : '◉ Tampilan ikon saja'; });
+function applyLayoutPreference() {
+  const compact = localStorage.getItem('nadya.layout.orb-only.v1') === 'true';
+  document.body.classList.toggle('orb-only', compact);
+  layoutButton.setAttribute('aria-pressed', String(compact));
+  layoutButton.textContent = compact ? '▤ Tampilan lengkap' : '◉ Tampilan ikon saja';
+}
+applyLayoutPreference();
+layoutButton.addEventListener('click', () => {
+  const compact = document.body.classList.toggle('orb-only');
+  try { localStorage.setItem('nadya.layout.orb-only.v1', String(compact)); } catch {}
+  layoutButton.setAttribute('aria-pressed', String(compact));
+  layoutButton.textContent = compact ? '▤ Tampilan lengkap' : '◉ Tampilan ikon saja';
+});
 const personaStatus = document.querySelector('#persona-status');
 const personaFields = { role: '#persona-role', gender: '#persona-gender', avatar: '#persona-avatar', style: '#persona-style', language: '#persona-language', pauses: '#persona-pauses' };
 function readPersonaForm() { return { ...Object.fromEntries(Object.entries(personaFields).map(([key, selector]) => [key, document.querySelector(selector)?.value || personaDefaults[key]])), voiceName: document.querySelector('#persona-voice-name')?.value || '' }; }
@@ -122,7 +142,7 @@ function savePersona() {
   persona = { ...personaDefaults, ...readPersonaForm() };
   try { localStorage.setItem('nadya.persona.v1', JSON.stringify(persona)); } catch {}
   applyPersona();
-  if (personaStatus) { const voices = availableVoices.length ? availableVoices : (('speechSynthesis' in window) ? window.speechSynthesis.getVoices() : []); const chosen = persona.voiceName ? voices.find((v) => v.name === persona.voiceName) : null; const maleAvailable = voices.some((v) => /male|pria|andika|guy|david|alex|daniel|rishi|jorge|thomas|microsoft ardi|microsoft budi|microsoft reza/i.test(v.name)); personaStatus.textContent = 'Preferensi tersimpan di browser ini. Nama tampilan: ' + companionName() + '. ' + (persona.gender === 'masculine' && !chosen && !maleAvailable ? 'Peringatan: suara pria tidak terdeteksi. Pilih suara pria jika tersedia; suara bergantung pada OS/browser.' : chosen ? 'Suara dipilih: ' + chosen.name + '.' : 'Suara otomatis mengikuti perangkat.'); }
+  if (personaStatus) { const voices = availableVoices.length ? availableVoices : (('speechSynthesis' in window) ? window.speechSynthesis.getVoices() : []); const chosen = persona.voiceName ? voices.find((v) => v.name === persona.voiceName) : null; const maleAvailable = voices.some((v) => maleVoiceName(v.name)); personaStatus.textContent = 'Preferensi tersimpan di browser ini. Nama tampilan: ' + companionName() + '. ' + (persona.gender === 'masculine' && !chosen && !maleAvailable ? 'Peringatan: suara pria tidak terdeteksi. Pilih suara pria jika tersedia; suara bergantung pada OS/browser.' : chosen ? 'Suara dipilih: ' + chosen.name + '.' : 'Suara otomatis mengikuti perangkat.'); }
   setVoiceState('idle', companionName() + ' siap', 'Preferensi persona diterapkan.');
 }
 document.querySelector('#save-persona')?.addEventListener('click', savePersona);
@@ -136,7 +156,7 @@ function beginVoiceFromOrb() {
   voiceSessionActive = true;
   voiceButton.setAttribute('aria-pressed', 'true');
   voiceButton.textContent = '■ Akhiri voice';
-  setVoiceState('listening', 'NADYA mendengarkan', 'Kamu bisa berbicara bergantian; NADYA akan mendengarkan lagi setelah jawabannya selesai.');
+  setVoiceState('listening', companionName() + ' mendengarkan', 'Kamu bisa berbicara bergantian; ' + companionName() + ' akan mendengarkan lagi setelah jawabannya selesai.');
   startListeningAgain();
 }
 if (mainOrb) {
@@ -147,7 +167,7 @@ if (mainOrb) {
   mainOrb.addEventListener('click', beginVoiceFromOrb);
   mainOrb.addEventListener('keydown', (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); beginVoiceFromOrb(); } });
 }
-speakButton.addEventListener('click', () => { speakingEnabled = !speakingEnabled; speakButton.setAttribute('aria-pressed', String(speakingEnabled)); speakButton.textContent = speakingEnabled ? '🔊 Suara aktif' : '🔇 Suara mati'; if (!speakingEnabled && 'speechSynthesis' in window) window.speechSynthesis.cancel(); setVoiceState('idle', 'NADYA siap', speakingEnabled ? 'Suara jawaban diaktifkan.' : 'Suara jawaban dimatikan.'); });
+speakButton.addEventListener('click', () => { speakingEnabled = !speakingEnabled; speakButton.setAttribute('aria-pressed', String(speakingEnabled)); speakButton.textContent = speakingEnabled ? '🔊 Suara aktif' : '🔇 Suara mati'; if (!speakingEnabled && 'speechSynthesis' in window) window.speechSynthesis.cancel(); setVoiceState('idle', companionName() + ' siap', speakingEnabled ? 'Suara jawaban diaktifkan.' : 'Suara jawaban dimatikan.'); });
 remoteToggle.addEventListener('change', () => { status.textContent = remoteToggle.checked ? 'AI online diizinkan; penggunaan provider mungkin berbiaya.' : 'Mode lokal aktif · tanpa biaya API.'; });
 const $ = (selector) => document.querySelector(selector);
 const navItems = [...document.querySelectorAll('[data-view]')];
