@@ -449,8 +449,7 @@ function renderJournal() {
   entries.forEach((entry) => {
     const card=document.createElement('article'); card.className='memory-item';
     const content=document.createElement('div'); const title=document.createElement('strong'); title.textContent=entry.emotion + ' · ' + new Date(entry.createdAt).toLocaleString('id-ID');
-    const body=document.createElement('p'); body.textContent=[entry.need && 'Kebutuhan: '+entry.need,entry.gratitude && 'Disyukuri: '+entry.gratitude,entry.challenge && 'Tantangan: '+entry.challenge,entry.step && 'Langkah kecil: '+entry.step].filter(Boolean).join('
-') || 'Entri tanpa catatan tambahan.';
+    const body=document.createElement('p'); body.textContent=[entry.need && 'Kebutuhan: '+entry.need,entry.gratitude && 'Disyukuri: '+entry.gratitude,entry.challenge && 'Tantangan: '+entry.challenge,entry.step && 'Langkah kecil: '+entry.step].filter(Boolean).join('\\n') || 'Entri tanpa catatan tambahan.';
     content.append(title,body); const remove=document.createElement('button'); remove.className='outline-button danger-button'; remove.type='button'; remove.textContent='Hapus';
     remove.addEventListener('click',()=>{writeLocalArray(JOURNAL_KEY,readLocalArray(JOURNAL_KEY).filter(x=>x.id!==entry.id));renderJournal();});
     card.append(content,remove); journalList.append(card);
