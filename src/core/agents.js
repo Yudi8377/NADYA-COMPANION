@@ -1,7 +1,7 @@
 const MAX_TEXT = 4000;
 
 function clean(value, max = MAX_TEXT) { return String(value ?? '').trim().slice(0, max); }
-function words(text) { return clean(text).toLocaleLowerCase('id-ID').match(/[\\p{L}\\p{N}]+/gu) || []; }
+function words(text) { return clean(text).toLocaleLowerCase('id-ID').match(/[\p{L}\p{N}]+/gu) || []; }
 
 export class NadyaAgentTeam {
   constructor({ maxTraces = 50 } = {}) { this.maxTraces = maxTraces; this.traces = []; }
@@ -14,9 +14,9 @@ export class NadyaAgentTeam {
     }
     const lower = goal.toLocaleLowerCase('id-ID');
     const selected = agent === 'auto'
-      ? (/\\b(riset|sumber|bukti|bandingkan|referensi|penelitian|fakta)\\b/.test(lower) ? 'research'
-        : /\\b(kirim|hapus|buka|ubah|jalankan|instal|publish|deploy|eksekusi|otomatisasi)\\b/.test(lower) ? 'workflow'
-          : /\\b(rencana|langkah|target|jadwal|belajar|proyek|project|buat|bangun)\\b/.test(lower) ? 'planning' : 'conversation')
+      ? (/\b(riset|sumber|bukti|bandingkan|referensi|penelitian|fakta)\b/.test(lower) ? 'research'
+        : /\b(kirim|hapus|buka|ubah|jalankan|instal|publish|deploy|eksekusi|otomatisasi)\b/.test(lower) ? 'workflow'
+          : /\b(rencana|langkah|target|jadwal|belajar|proyek|project|buat|bangun)\b/.test(lower) ? 'planning' : 'conversation')
       : agent;
     let result;
     if (selected === 'conversation') result = this.conversation(goal, context);
@@ -30,7 +30,7 @@ export class NadyaAgentTeam {
 
   conversation(task, context) {
     const ctx = clean(context, 1800);
-    const questions = /\\?$/.test(task) || /\\b(kenapa|bagaimana|apa|siapa|kapan|di mana|mengapa)\\b/i.test(task);
+    const questions = /\?$/.test(task) || /\b(kenapa|bagaimana|apa|siapa|kapan|di mana|mengapa)\b/i.test(task);
     return { ok: true, mode: 'local-context', title: 'Pemahaman percakapan', answer: ctx
       ? 'Aku membaca tugas ini bersama konteks yang kamu berikan. Aku akan memisahkan kebutuhan yang jelas dari hal yang belum diketahui, tanpa menganggap konteks sebagai fakta terverifikasi.'
       : 'Aku menangkap pesanmu sebagai titik awal. Karena agen ini berjalan lokal berbasis aturan, ia belum memiliki pemahaman semantik setara model AI generatif; beri konteks tambahan bila dibutuhkan.',
@@ -44,7 +44,7 @@ export class NadyaAgentTeam {
     const terms = [...new Set(words(task).filter(w => w.length > 3))];
     const ctxWords = words(supplied);
     const matched = terms.filter(w => ctxWords.includes(w));
-    const urlMatches = supplied.match(/https?:\\/\\/[^\\s)]+/g) || [];
+    const urlMatches = supplied.match(/https?:\/\/[^\s)]+/g) || [];
     return { ok: true, mode: 'local-evidence-triage', title: 'Pemetaan bukti lokal', answer: 'Analisis ini hanya memeriksa teks yang kamu berikan. Ini bukan penelusuran web, pemeriksaan reputasi penerbit, atau validasi kebenaran ilmiah.', findings: [
       `Kata kunci tugas yang ditemukan dalam materi: ${matched.length ? matched.join(', ') : 'belum ada kecocokan kata kunci yang jelas'}.`,
       `URL yang terdeteksi: ${urlMatches.length ? urlMatches.join(' ; ') : 'tidak ada URL terdeteksi'}.`,
@@ -64,7 +64,7 @@ export class NadyaAgentTeam {
   }
 
   workflow(task, consent) {
-    const risky = /\\b(kirim|hapus|buka|ubah|jalankan|instal|publish|deploy|eksekusi|otomatisasi|transaksi|bayar)\\b/i.test(task);
+    const risky = /\b(kirim|hapus|buka|ubah|jalankan|instal|publish|deploy|eksekusi|otomatisasi|transaksi|bayar)\b/i.test(task);
     return { ok: true, mode: 'safe-preview-only', title: 'Pratinjau Device & Workflow', answer: risky
       ? 'Permintaan ini dapat memengaruhi perangkat, data, akun, atau layanan eksternal. NADYA belum memiliki konektor eksekusi perangkat yang terpasang, sehingga tidak ada tindakan eksternal yang dijalankan.'
       : 'Agen workflow dapat menyusun pratinjau langkah lokal, tetapi belum menjalankan tindakan eksternal.',
