@@ -1,7 +1,5 @@
-name: NADYA Pages
+name: NADYA Pages (manual build)
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
