@@ -73,3 +73,9 @@ function renderCapabilities() {
   }
 }
 renderCapabilities();
+
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {
+    status.textContent = 'Runtime lokal aktif · mode offline belum tersedia di origin ini';
+  }));
+}
