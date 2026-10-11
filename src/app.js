@@ -59,36 +59,38 @@ const layoutButton = document.querySelector('#layout-toggle');
 const mainOrb = document.querySelector('#nadya-orb');
 function setVoiceState(state, label, help = '') { voiceOrbs.forEach((orb) => { orb.dataset.state = state; }); if (voiceState) voiceState.textContent = label; if (voiceHelp && help) voiceHelp.textContent = help; }
 function maleVoiceName(name) { return /\b(?:male|pria|ardi|andika|budi|reza|david|mark|alex|daniel|rishi|jorge|thomas|guy|matthew|james|george|ryan|aaron|fred|tom)\b/i.test(String(name)) && !/\b(?:female|woman|zira|samantha|karen|tessa|gadis|aria|jenny|michelle|eva|susan|hazel|heera|monica|sara|victoria)\b/i.test(String(name)); }
+function maleVoiceName(name) {
+  const value = String(name || '');
+  return /\\b(?:male|pria|ardi|andika|budi|reza|david|mark|alex|daniel|rishi|jorge|thomas|guy|matthew|james|george|ryan|aaron|fred|tom)\\b/i.test(value)
+    && !/\\b(?:female|woman|zira|samantha|karen|tessa|gadis|aria|jenny|michelle|eva|susan|hazel|heera|monica|sara|victoria)\\b/i.test(value);
+}
 function speak(text) {
   if (!speakingEnabled || !('speechSynthesis' in window)) { if (voiceSessionActive) startListeningAgain(); return; }
-  if (persona.gender === 'masculine') {
-    const voices = availableVoices.length ? availableVoices : window.speechSynthesis.getVoices();
-    if (!voices.some((voice) => maleVoiceName(voice.name))) {
-      setVoiceState('idle', 'ARYA: suara pria tidak tersedia', 'Tidak akan diputar suara default yang mungkin terdengar wanita. Tambahkan suara pria di pengaturan Windows/Edge lalu muat ulang suara.');
-      return;
-    }
-  }
   if (recognition && voiceSessionActive) { recognitionShouldRestart = true; try { recognition.stop(); } catch {} }
   window.speechSynthesis.cancel();
-  // Jangan membacakan "hmm" di awal setiap jawaban. Jeda berpikir ditampilkan saat menunggu,
-  // sedangkan jeda bicara berasal dari tanda baca dan pemenggalan kalimat.
   let clean = String(text).slice(0, 1800)
-    .replace(/NADYA\s+AI\s+COMPANION/gi, 'Nadya AI Companion')
-    .replace(/\s+/g, ' ')
-    .replace(/\s+([,.!?;:])/g, '$1')
+    .replace(/NADYA\\s+AI\\s+COMPANION/gi, companionName() + ' AI Companion')
+    .replace(/\\bNADYA\\b/gi, companionName())
+    .replace(/\\s+/g, ' ')
+    .replace(/\\s+([,.!?;:])/g, '$1')
     .replace(/([.!?])([A-ZÀ-Ý])/g, '$1 $2');
-  if (persona.style === 'casual' || persona.style === 'playful') clean = clean.replace(/^Baik[,!.]?\s+/i, 'Oke, ').replace(/^Tentu[,!.]?\s+/i, 'Bisa banget, ');
-  const englishWords = (clean.match(/\b(the|and|you|your|hello|thank|please|what|how|is|are|companion|welcome|good|morning|afternoon|evening|today|tomorrow|because|with|from|about)\b/gi) || []).length;
-  const indonesianWords = (clean.match(/\b(dan|yang|aku|kamu|untuk|dengan|dalam|adalah|bisa|tidak|sudah|akan|karena|selamat|terima|kasih|bagaimana|apa|ini|itu)\b/gi) || []).length;
+  if (persona.style === 'casual' || persona.style === 'playful') clean = clean.replace(/^Baik[,!.]?\\s+/i, 'Oke, ').replace(/^Tentu[,!.]?\\s+/i, 'Bisa banget, ');
+  const englishWords = (clean.match(/\\b(the|and|you|your|hello|thank|please|what|how|is|are|companion|welcome|good|morning|afternoon|evening|today|tomorrow|because|with|from|about)\\b/gi) || []).length;
+  const indonesianWords = (clean.match(/\\b(dan|yang|aku|kamu|untuk|dengan|dalam|adalah|bisa|tidak|sudah|akan|karena|selamat|terima|kasih|bagaimana|apa|ini|itu)\\b/gi) || []).length;
   const lang = persona.language === 'jv' ? 'jv-ID' : persona.language === 'su' || persona.language === 'mad' || persona.language === 'mixed' ? 'id-ID' : (englishWords > indonesianWords ? 'en-US' : 'id-ID');
   const voiceList = availableVoices.length ? availableVoices : window.speechSynthesis.getVoices();
-  const malePattern = /\\b(?:male|pria|ardi|andika|budi|reza|david|mark|alex|daniel|rishi|jorge|thomas|guy|matthew|james|george|ryan|aaron|fred|tom)\\b/i;
   const femalePattern = /\\b(?:female|perempuan|woman|zira|samantha|karen|tessa|gadis|aria|jenny|michelle|eva|susan|hazel|heera|monica|sara|victoria)\\b/i;
+  const malePattern = /\\b(?:male|pria|ardi|andika|budi|reza|david|mark|alex|daniel|rishi|jorge|thomas|guy|matthew|james|george|ryan|aaron|fred|tom)\\b/i;
   let candidates = voiceList.filter((voice) => voice.lang.toLowerCase().startsWith(lang.split('-')[0].toLowerCase()));
   if (!candidates.length && lang !== 'id-ID') candidates = voiceList.filter((voice) => voice.lang.toLowerCase().startsWith('id'));
-  const wanted = persona.gender === 'masculine' ? malePattern : persona.gender === 'feminine' ? femalePattern : null;
-  const selected = (persona.voiceName && voiceList.find((voice) => voice.name === persona.voiceName)) || (wanted ? candidates.find((voice) => wanted.test(voice.name)) : null);
-  const genderMismatch = persona.gender === 'masculine' && (!selected || femalePattern.test(selected.name));
+  const requestedVoice = persona.voiceName && voiceList.find((voice) => voice.name === persona.voiceName);
+  const selected = persona.gender === 'masculine'
+    ? ((requestedVoice && maleVoiceName(requestedVoice.name)) ? requestedVoice : candidates.find((voice) => maleVoiceName(voice.name)) || null)
+    : (requestedVoice || candidates.find((voice) => femalePattern.test(voice.name)) || null);
+  if (persona.gender === 'masculine' && !selected) {
+    setVoiceState('idle', 'ARYA: suara pria tidak tersedia', 'ARYA tidak akan memakai suara default yang mungkin terdengar wanita. Tambahkan suara pria di Windows/Edge, lalu buka ulang pilihan suara.');
+    return;
+  }
   const chunks = clean.match(/[^.!?]+[.!?]+|[^.!?]+$/g)?.map((part) => part.trim()).filter(Boolean) || [clean];
   let chunkIndex = 0;
   const speakNext = () => {
@@ -98,17 +100,16 @@ function speak(text) {
       return;
     }
     const part = chunks[chunkIndex++];
-    const emotional = /maaf|sedih|berat|kecewa|takut|cemas|khawatir|sulit/i.test(part) ? 'gentle' : /selamat|hebat|berhasil|keren|bagus|senang|mantap/i.test(part) ? 'bright' : /\?/.test(part) ? 'curious' : 'calm';
+    const emotional = /maaf|sedih|berat|kecewa|takut|cemas|khawatir|sulit/i.test(part) ? 'gentle' : /selamat|hebat|berhasil|keren|bagus|senang|mantap/i.test(part) ? 'bright' : /\\?/.test(part) ? 'curious' : 'calm';
     const utterance = new SpeechSynthesisUtterance(part);
     utterance.lang = lang;
     if (selected) utterance.voice = selected;
-    // Rentang kecil membuat suara lebih nyaman; kualitas intonasi tetap mengikuti mesin suara browser.
     utterance.rate = emotional === 'gentle' ? 0.91 : emotional === 'bright' ? 1.0 : persona.style === 'playful' ? 0.99 : 0.95;
     utterance.pitch = persona.gender === 'masculine' ? 0.82 : persona.gender === 'feminine' ? 1.04 : 1.0;
     if (emotional === 'gentle') utterance.pitch *= 0.98;
     if (emotional === 'bright') utterance.pitch *= 1.02;
-    utterance.onstart = () => setVoiceState('speaking', companionName() + ' sedang berbicara', selected ? 'Menggunakan suara ' + selected.name + '.' : (genderMismatch ? 'PERINGATAN: suara pria tidak terdeteksi. Pilih suara pria pada Persona & Suara; browser mungkin memakai suara default.' : 'Suara dan intonasi mengikuti dukungan browser/perangkat.'));
-    utterance.onend = () => { if (chunkIndex < chunks.length) { window.setTimeout(speakNext, /[,;:]$/.test(part) ? 100 : 170); } else speakNext(); };
+    utterance.onstart = () => setVoiceState('speaking', companionName() + ' sedang berbicara', selected ? 'Menggunakan suara ' + selected.name + '.' : 'Suara mengikuti dukungan browser/perangkat.');
+    utterance.onend = () => { if (chunkIndex < chunks.length) window.setTimeout(speakNext, /[,;:]$/.test(part) ? 100 : 170); else speakNext(); };
     utterance.onerror = () => { if (chunkIndex < chunks.length) speakNext(); else { setVoiceState('idle', companionName() + ' siap', 'Suara browser tidak tersedia; jawaban tetap bisa dibaca.'); if (voiceSessionActive) startListeningAgain(); } };
     window.speechSynthesis.speak(utterance);
   };
