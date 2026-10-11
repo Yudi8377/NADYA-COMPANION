@@ -27,3 +27,18 @@ test('user knowledge requires source and can be exported', () => {
   assert.match(kb.search('Sains air hidrogen oksigen')[0].text, /hidrogen dan oksigen/i);
   assert.equal(JSON.parse(kb.exportJSON()).userEntries.length, 1);
 });
+
+
+test('bundled mental wellness knowledge is available offline and cites sources', () => {
+  const kb = new LocalKnowledgeBase(new MemoryStorage());
+  const mentalWealth = kb.search('jelaskan mental wealth dan kesejahteraan')[0];
+  assert.ok(mentalWealth);
+  assert.match(mentalWealth.text, /bukan diagnosis klinis baku/i);
+  assert.ok(mentalWealth.sources.some((source) => source.includes('who.int')));
+  const stress = kb.search('cara menghadapi stres dan tekanan')[0];
+  assert.ok(stress);
+  assert.match(stress.text, /satu langkah kecil/i);
+  const boundaries = kb.search('batas pribadi dan hubungan sehat')[0];
+  assert.ok(boundaries);
+  assert.match(boundaries.text, /menghormati persetujuan/i);
+});
