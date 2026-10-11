@@ -400,6 +400,81 @@ clearTracesButton.addEventListener('click', () => {
   renderTraces();
 });
 
+// Local-only reflection and knowledge curation workspaces.
+const JOURNAL_KEY = 'nadya.mental-wealth-journal.v1';
+const JOURNAL_CONSENT_KEY = 'nadya.mental-wealth-journal-consent.v1';
+const GROWTH_KEY = 'nadya.personal-growth-map.v1';
+const KNOWLEDGE_DRAFTS_KEY = 'nadya.knowledge-drafts.v1';
+const readLocalArray = (key) => { try { const v = JSON.parse(localStorage.getItem(key) || '[]'); return Array.isArray(v) ? v : []; } catch { return []; } };
+const writeLocalArray = (key, value) => localStorage.setItem(key, JSON.stringify(value));
+const journalConsent = $('#journal-consent');
+const journalForm = $('#journal-form');
+const journalStatus = $('#journal-status');
+const journalList = $('#journal-list');
+function renderJournal() {
+  if (!journalList) return;
+  const enabled = localStorage.getItem(JOURNAL_CONSENT_KEY) === 'true';
+  journalConsent.checked = enabled;
+  journalForm.querySelectorAll('input,select,textarea,button[type="submit"]').forEach((el) => { el.disabled = !enabled; });
+  journalList.replaceChildren();
+  const entries = enabled ? readLocalArray(JOURNAL_KEY) : [];
+  if (!enabled) { journalStatus.textContent = 'Jurnal nonaktif. Aktifkan persetujuan terlebih dahulu.'; return; }
+  if (!entries.length) { const empty=document.createElement('p'); empty.className='empty-state'; empty.textContent='Belum ada entri jurnal. Isi hanya yang terasa nyaman untukmu.'; journalList.append(empty); }
+  entries.forEach((entry) => {
+    const card=document.createElement('article'); card.className='memory-item';
+    const content=document.createElement('div'); const title=document.createElement('strong'); title.textContent=entry.emotion + ' · ' + new Date(entry.createdAt).toLocaleString('id-ID');
+    const body=document.createElement('p'); body.textContent=[entry.need && 'Kebutuhan: '+entry.need,entry.gratitude && 'Disyukuri: '+entry.gratitude,entry.challenge && 'Tantangan: '+entry.challenge,entry.step && 'Langkah kecil: '+entry.step].filter(Boolean).join('\n') || 'Entri tanpa catatan tambahan.';
+    content.append(title,body); const remove=document.createElement('button'); remove.className='outline-button danger-button'; remove.type='button'; remove.textContent='Hapus';
+    remove.addEventListener('click',()=>{writeLocalArray(JOURNAL_KEY,readLocalArray(JOURNAL_KEY).filter(x=>x.id!==entry.id));renderJournal();});
+    card.append(content,remove); journalList.append(card);
+  });
+  journalStatus.textContent = entries.length + ' entri tersimpan di browser ini saja; tidak dikirim ke provider AI.';
+}
+journalConsent?.addEventListener('change', () => { localStorage.setItem(JOURNAL_CONSENT_KEY, journalConsent.checked ? 'true' : 'false'); renderJournal(); });
+journalForm?.addEventListener('submit',(event)=>{
+  event.preventDefault();
+  if(localStorage.getItem(JOURNAL_CONSENT_KEY)!=='true'){journalStatus.textContent='Aktifkan jurnal lokal terlebih dahulu.';return;}
+  const emotion=$('#journal-emotion').value;
+  if(!emotion){journalStatus.textContent='Pilih emosi atau pengalaman yang paling mendekati, bila nyaman.';return;}
+  const entries=readLocalArray(JOURNAL_KEY);
+  entries.unshift({id:globalThis.crypto?.randomUUID?.()||'journal-'+Date.now(),createdAt:new Date().toISOString(),emotion,need:$('#journal-need').value.trim(),gratitude:$('#journal-gratitude').value.trim(),challenge:$('#journal-challenge').value.trim(),step:$('#journal-step').value.trim()});
+  writeLocalArray(JOURNAL_KEY,entries.slice(0,365)); journalForm.reset(); renderJournal();
+});
+$('#journal-export')?.addEventListener('click',()=>{
+  if(localStorage.getItem(JOURNAL_CONSENT_KEY)!=='true'){journalStatus.textContent='Aktifkan persetujuan jurnal untuk mengekspor.';return;}
+  const blob=new Blob([JSON.stringify({schemaVersion:1,exportedAt:new Date().toISOString(),entries:readLocalArray(JOURNAL_KEY)},null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='nadya-mental-wealth-journal.json';a.click();URL.revokeObjectURL(url);
+});
+$('#journal-clear')?.addEventListener('click',()=>{if(!window.confirm('Hapus semua entri Mental Wealth Journal dari browser ini?'))return;localStorage.removeItem(JOURNAL_KEY);renderJournal();});
+renderJournal();
+
+const growthForm=$('#growth-form'), growthList=$('#growth-list'), growthStatus=$('#growth-status');
+const growthLabels={'self-awareness':'Pengenalan diri',communication:'Komunikasi',habits:'Kebiasaan',learning:'Pembelajaran',values:'Nilai hidup',relationships:'Hubungan'};
+function renderGrowth(){
+  if(!growthList)return;growthList.replaceChildren();const entries=readLocalArray(GROWTH_KEY);
+  if(!entries.length){const p=document.createElement('p');p.className='empty-state';p.textContent='Belum ada refleksi. Kamu bisa mulai dari area yang terasa paling penting.';growthList.append(p);}
+  entries.forEach((entry)=>{const card=document.createElement('article');card.className='memory-item';const content=document.createElement('div');const title=document.createElement('strong');title.textContent=(growthLabels[entry.area]||entry.area)+' · '+new Date(entry.createdAt).toLocaleDateString('id-ID');const goal=document.createElement('p');goal.textContent='Fokus: '+(entry.goal||'belum ditentukan');const reflection=document.createElement('p');reflection.textContent=entry.reflection||'Belum ada refleksi tertulis.';content.append(title,goal,reflection);const remove=document.createElement('button');remove.className='outline-button danger-button';remove.type='button';remove.textContent='Hapus';remove.addEventListener('click',()=>{writeLocalArray(GROWTH_KEY,readLocalArray(GROWTH_KEY).filter(x=>x.id!==entry.id));renderGrowth();});card.append(content,remove);growthList.append(card);});
+  growthStatus.textContent=entries.length+' refleksi tersimpan lokal. Ini bukan skor atau diagnosis.';
+}
+growthForm?.addEventListener('submit',(event)=>{event.preventDefault();const area=$('#growth-area').value,goal=$('#growth-goal').value.trim(),reflection=$('#growth-reflection').value.trim();if(!goal&&!reflection){growthStatus.textContent='Isi fokus atau refleksi terlebih dahulu.';return;}const entries=readLocalArray(GROWTH_KEY);entries.unshift({id:globalThis.crypto?.randomUUID?.()||'growth-'+Date.now(),area,goal,reflection,createdAt:new Date().toISOString()});writeLocalArray(GROWTH_KEY,entries.slice(0,200));growthForm.reset();renderGrowth();});
+$('#growth-export')?.addEventListener('click',()=>{const blob=new Blob([JSON.stringify({schemaVersion:1,exportedAt:new Date().toISOString(),entries:readLocalArray(GROWTH_KEY)},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='nadya-personal-growth-map.json';a.click();URL.revokeObjectURL(url);});
+$('#growth-clear')?.addEventListener('click',()=>{if(!window.confirm('Hapus semua refleksi Personal Growth Map dari browser ini?'))return;localStorage.removeItem(GROWTH_KEY);renderGrowth();});
+renderGrowth();
+
+const knowledgeForm=$('#knowledge-form'), knowledgeStatus=$('#knowledge-status'), knowledgeDraftList=$('#knowledge-drafts');
+function renderKnowledgeDrafts(){
+  if(!knowledgeDraftList)return;knowledgeDraftList.replaceChildren();const drafts=readLocalArray(KNOWLEDGE_DRAFTS_KEY);
+  if(!drafts.length){const p=document.createElement('p');p.className='empty-state';p.textContent='Belum ada draf riset. Draf yang dibuat di sini tidak otomatis diverifikasi atau disetujui.';knowledgeDraftList.append(p);}
+  drafts.forEach((draft)=>{const card=document.createElement('article');card.className='memory-item';const content=document.createElement('div');const title=document.createElement('strong');title.textContent=draft.topic+' · '+(draft.status==='approved'?'disetujui lokal':'draf menunggu pemeriksaan');const meta=document.createElement('small');meta.textContent='Dicatat '+new Date(draft.createdAt).toLocaleString('id-ID')+' · '+draft.evidenceType+' · '+(draft.publishedAt||'tanggal publikasi tidak diketahui');const text=document.createElement('p');text.textContent=draft.text;const source=document.createElement('p');source.textContent='Sumber: '+draft.source;const limits=document.createElement('p');limits.textContent='Ketidakpastian: '+draft.limitations;content.append(title,meta,text,source,limits);card.append(content);
+    if(draft.status!=='approved'){const approve=document.createElement('button');approve.type='button';approve.className='primary-button';approve.textContent='Uji materi & setujui lokal';approve.addEventListener('click',()=>{try{const url=new URL(draft.source);if(!['https:','http:'].includes(url.protocol))throw new Error('Sumber harus URL HTTP/HTTPS.');if(draft.text.trim().length<40)throw new Error('Materi terlalu pendek untuk diperiksa. Tambahkan ringkasan yang bermakna.');if(draft.limitations.trim().length<8)throw new Error('Jelaskan keterbatasan/ketidakpastian sebelum menyetujui.');knowledge.addApproved({topic:draft.topic,text:draft.text,source:draft.source,publishedAt:draft.publishedAt,evidenceType:draft.evidenceType,limitations:draft.limitations});draft.status='approved';draft.approvedAt=new Date().toISOString();writeLocalArray(KNOWLEDGE_DRAFTS_KEY,drafts);knowledgeStatus.textContent='Materi ditambahkan ke basis lokal dengan jejak sumber. Ini pemeriksaan format/kelengkapan, bukan verifikasi ilmiah otomatis.';renderKnowledgeDrafts();}catch(error){knowledgeStatus.textContent=error.message;}});card.append(approve);}
+    const remove=document.createElement('button');remove.type='button';remove.className='outline-button danger-button';remove.textContent='Hapus draf';remove.addEventListener('click',()=>{writeLocalArray(KNOWLEDGE_DRAFTS_KEY,readLocalArray(KNOWLEDGE_DRAFTS_KEY).filter(x=>x.id!==draft.id));renderKnowledgeDrafts();});card.append(remove);knowledgeDraftList.append(card);
+  });
+  knowledgeStatus.textContent=drafts.filter(x=>x.status!=='approved').length+' draf menunggu; '+drafts.filter(x=>x.status==='approved').length+' disetujui lokal.';
+}
+knowledgeForm?.addEventListener('submit',(event)=>{event.preventDefault();const topic=$('#knowledge-topic').value.trim(),textValue=$('#knowledge-text').value.trim(),source=$('#knowledge-source').value.trim(),publishedAt=$('#knowledge-date').value,evidenceType=$('#knowledge-evidence').value,limitations=$('#knowledge-limits').value.trim();try{const url=new URL(source);if(!['http:','https:'].includes(url.protocol))throw new Error('Masukkan URL HTTP/HTTPS yang dapat diperiksa.');if(textValue.length<40)throw new Error('Ringkasan minimal 40 karakter agar cukup informatif.');if(limitations.length<8)throw new Error('Isi keterbatasan/ketidakpastian.');const drafts=readLocalArray(KNOWLEDGE_DRAFTS_KEY);drafts.unshift({id:globalThis.crypto?.randomUUID?.()||'draft-'+Date.now(),topic,text:textValue,source,publishedAt,evidenceType,limitations,status:'draft',createdAt:new Date().toISOString()});writeLocalArray(KNOWLEDGE_DRAFTS_KEY,drafts.slice(0,100));knowledgeForm.reset();renderKnowledgeDrafts();knowledgeStatus.textContent='Draf disimpan. NADYA belum membuka atau memverifikasi sumber tersebut.';}catch(error){knowledgeStatus.textContent=error.message;}});
+$('#knowledge-export')?.addEventListener('click',()=>{const blob=new Blob([JSON.stringify({schemaVersion:1,exportedAt:new Date().toISOString(),drafts:readLocalArray(KNOWLEDGE_DRAFTS_KEY),approvedKnowledge:knowledge.userEntries()},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='nadya-knowledge-curation.json';a.click();URL.revokeObjectURL(url);});
+renderKnowledgeDrafts();
+
 function renderCapabilities() {
   const list = $('#capability-list');
   list.replaceChildren();
