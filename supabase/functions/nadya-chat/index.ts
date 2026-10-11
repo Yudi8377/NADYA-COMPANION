@@ -103,8 +103,8 @@ Deno.serve(async (req: Request) => {
   try {
     upstream = await fetch(baseUrl + '/chat/completions', {
       method: 'POST', headers: { Authorization: 'Bearer ' + apiKey, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model, messages: [{ role: 'system', content: systemParts.join('\n\n') }, ...input.messages], temperature: 0.7, max_tokens: 700 }),
-      signal: AbortSignal.timeout(25000)
+      body: JSON.stringify({ model, messages: [{ role: 'system', content: systemParts.join('\n\n') }, ...input.messages], temperature: 0.65, max_tokens: 480 }),
+      signal: AbortSignal.timeout(18000)
     });
   } catch { return json(502, { error: 'Provider AI tidak dapat dijangkau atau melewati batas waktu.', code: 'UPSTREAM_UNAVAILABLE' }, cors); }
   if (!upstream.ok) return json(502, { error: 'Provider AI menolak permintaan. Periksa konfigurasi secret server.', code: 'UPSTREAM_ERROR' }, cors);
