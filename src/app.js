@@ -82,9 +82,12 @@ function speak(text) {
   let candidates = voiceList.filter((voice) => voice.lang.toLowerCase().startsWith(lang.split('-')[0].toLowerCase()));
   if (!candidates.length && lang !== 'id-ID') candidates = voiceList.filter((voice) => voice.lang.toLowerCase().startsWith('id'));
   const requestedVoice = persona.voiceName && voiceList.find((voice) => voice.name === persona.voiceName);
+  // A voice explicitly chosen by the user takes precedence. Browser voice names are
+  // inconsistent across OS languages, so do not reject a manually selected voice
+  // merely because its name does not contain a gender marker.
   const selected = persona.gender === 'masculine'
-    ? ((requestedVoice && maleVoiceName(requestedVoice.name)) ? requestedVoice : candidates.find((voice) => maleVoiceName(voice.name)) || null)
-    : (requestedVoice || candidates.find((voice) => femalePattern.test(voice.name)) || null);
+    ? (requestedVoice || candidates.find((voice) => maleVoiceName(voice.name)) || voiceList.find((voice) => maleVoiceName(voice.name)) || null)
+    : (requestedVoice || candidates.find((voice) => femalePattern.test(voice.name)) || candidates[0] || voiceList[0] || null);
   if (persona.gender === 'masculine' && !selected) {
     setVoiceState('idle', 'ARYA: suara pria tidak tersedia', 'ARYA tidak akan memakai suara default yang mungkin terdengar wanita. Tambahkan suara pria di Windows/Edge, lalu buka ulang pilihan suara.');
     return;
