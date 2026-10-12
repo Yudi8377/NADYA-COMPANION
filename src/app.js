@@ -216,6 +216,41 @@ function showView(name) {
 }
 navItems.forEach((item) => item.addEventListener('click', () => showView(item.dataset.view)));
 
+const CHAT_MEMORY_KEY = 'nadya.chat-history.v1';
+function saveChatHistory() {
+  if (!memory.isEnabled()) return;
+  const items = [...chat.querySelectorAll('.message')].map((article) => ({
+    role: article.classList.contains('user') ? 'user' : 'assistant',
+    text: article.querySelector('p')?.textContent || '',
+    at: new Date().toISOString()
+  })).filter((item) => item.text).slice(-40);
+  try { localStorage.setItem(CHAT_MEMORY_KEY, JSON.stringify(items)); } catch { memoryStatus.textContent = 'Riwayat tidak dapat disimpan; penyimpanan browser mungkin penuh.'; }
+}
+function restoreChatHistory() {
+  if (!memory.isEnabled()) return;
+  try {
+    const items = JSON.parse(localStorage.getItem(CHAT_MEMORY_KEY) || '[]');
+    if (!Array.isArray(items)) return;
+    const valid = items.filter((item) => item && ['user', 'assistant'].includes(item.role) && typeof item.text === 'string').slice(-40);
+    if (!valid.length) return;
+    chat.replaceChildren();
+    runtime.history = [];
+    valid.forEach((item) => {
+      const article = document.createElement('article');
+      article.className = 'message ' + item.role;
+      const label = document.createElement('span');
+      label.className = 'message-label';
+      label.textContent = item.role === 'assistant' ? companionName() : 'KAMU';
+      const body = document.createElement('p');
+      body.textContent = item.text;
+      article.append(label, body);
+      chat.append(article);
+      runtime.history.push({ role: item.role, text: item.text, at: item.at || new Date().toISOString() });
+    });
+    runtime.history = runtime.history.slice(-24);
+    chat.scrollTop = chat.scrollHeight;
+  } catch {}
+}
 function addMessage(role, text) {
   const article = document.createElement('article');
   article.className = `message ${role}`;
@@ -227,7 +262,9 @@ function addMessage(role, text) {
   article.append(label, body);
   chat.append(article);
   chat.scrollTop = chat.scrollHeight;
+  saveChatHistory();
 }
+restoreChatHistory();
 
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
@@ -283,7 +320,7 @@ form.addEventListener('submit', async (event) => {
         }
       }
       const messages = [
-        ...runtime.history.slice(-8).map((item) => ({ role: item.role, content: item.text })),
+        ...runtime.history.slice(-20).map((item) => ({ role: item.role, content: item.text })),
         { role: 'assistant', content: contextBlock + researchContext },
         { role: 'user', content: message }
       ].slice(-10);
@@ -324,7 +361,8 @@ form.addEventListener('submit', async (event) => {
 $('#clear-chat').addEventListener('click', () => {
   runtime.clearSession();
   chat.replaceChildren();
-  addMessage('assistant', 'Sesi percakapan lokal telah dibersihkan. Catatan memori yang kamu simpan secara manual tidak ikut dihapus.');
+  try { localStorage.removeItem(CHAT_MEMORY_KEY); } catch {}
+  addMessage('assistant', 'Sesi percakapan dibersihkan. Catatan memori terpisah tetap tersimpan sesuai pengaturanmu.');
 });
 
 function renderMemory() {
@@ -374,9 +412,12 @@ function renderMemory() {
 
 memoryToggle.addEventListener('change', () => {
   memory.setConsent(memoryToggle.checked);
-  memoryStatus.textContent = memoryToggle.checked
-    ? 'Persetujuan aktif. Memori tetap manual: hanya catatan yang kamu tambahkan yang akan disimpan.'
-    : 'Persetujuan dinonaktifkan. Catatan lama tetap tersimpan di perangkat tetapi disembunyikan sampai persetujuan diaktifkan kembali.';
+  if (memoryToggle.checked) {
+    restoreChatHistory();
+    memoryStatus.textContent = 'Memori aktif. Catatan manual dan hingga 40 pesan terakhir akan disimpan lokal di browser ini agar sesi dapat berlanjut.';
+  } else {
+    memoryStatus.textContent = 'Memori nonaktif. Riwayat lama tetap berada di perangkat tetapi tidak dipakai; hapus melalui Bersihkan sesi bila ingin menghapus riwayat percakapan.';
+  }
   renderMemory();
 });
 
