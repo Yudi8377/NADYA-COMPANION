@@ -83,25 +83,28 @@ function speak(text) {
   // the forced English accent the user reported. Only voices tagged for the target language qualify.
   const languageCode = lang.split('-')[0].toLowerCase();
   const candidates = voiceList.filter((voice) => String(voice.lang || '').toLowerCase().startsWith(languageCode));
+  // Speech language wins over gender. Never assign an English voice to Indonesian
+  // text: it makes ARYA pronounce Indonesian with an English accent. For ARYA,
+  // prefer a recognized male Indonesian voice; if unavailable, use an Indonesian
+  // voice with lower pitch rather than switching to English.
   const requestedVoice = persona.voiceName && voiceList.find((voice) => voice.name === persona.voiceName);
-  // ARYA prioritizes a recognizable masculine voice even when Windows only offers
-  // male voices tagged en-GB/en-US. Prefer Indonesian male voices first; if absent,
-  // use the user's explicit male selection or another recognized male voice.
-  // Never abort speech just because voice metadata is incomplete or the list is still loading.
+  const requestedMatchesLanguage = requestedVoice && String(requestedVoice.lang || '').toLowerCase().startsWith(languageCode);
   const selected = persona.gender === 'masculine'
-    ? ((requestedVoice && maleVoiceName(requestedVoice.name) ? requestedVoice : null)
+    ? ((requestedMatchesLanguage && maleVoiceName(requestedVoice.name) ? requestedVoice : null)
       || candidates.find((voice) => maleVoiceName(voice.name))
-      || voiceList.find((voice) => maleVoiceName(voice.name))
       || candidates[0]
-      || requestedVoice
-      || voiceList[0]
       || null)
-    : ((requestedVoice && femalePattern.test(requestedVoice.name) && candidates.includes(requestedVoice) ? requestedVoice : null)
+    : ((requestedMatchesLanguage ? requestedVoice : null)
       || candidates.find((voice) => femalePattern.test(voice.name))
       || candidates[0]
-      || requestedVoice
-      || voiceList[0]
       || null);
+  if (persona.gender === 'masculine' && requestedVoice && !requestedMatchesLanguage) {
+    setVoiceState('idle', 'ARYA menggunakan suara bahasa Indonesia', 'Pilihan suara ' + requestedVoice.name + ' berbahasa ' + requestedVoice.lang + ', jadi dilewati agar pelafalan bahasa Indonesia tidak beraksen Inggris.');
+  }
+  if (!selected) {
+    setVoiceState('idle', companionName() + ': suara bahasa ' + languageCode + ' tidak tersedia', 'Pasang/aktifkan suara bahasa Indonesia di pengaturan Windows, lalu muat ulang halaman. Suara Inggris sengaja tidak dipakai untuk membaca teks Indonesia.');
+    return;
+  }
   const chunks = clean.match(/[^.!?]+[.!?]+|[^.!?]+$/g)?.map((part) => part.trim()).filter(Boolean) || [clean];
   let chunkIndex = 0;
   const speakNext = () => {
