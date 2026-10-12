@@ -253,7 +253,7 @@ form.addEventListener('submit', async (event) => {
           const sourceLines = (research.sources || []).slice(0, 5).map((source) => `- ${source.title || 'Sumber'} — ${source.url || ''}${source.publishedDate ? ' (' + source.publishedDate + ')' : ''}`).join('\\n');
           researchContext = '\\n\\nHASIL PENELUSURAN ONLINE (periksa sumber dan tanggal; bukan jaminan kebenaran):\\n' + String(research.summary || '').slice(0, 5000) + (sourceLines ? '\\nSumber yang dikembalikan:\\n' + sourceLines : '');
           // Keep autonomous discoveries as local review drafts; never auto-approve them as trusted knowledge.
-          const discoveredSources = (research.sources || []).filter((source) => /^https?:\\/\\//i.test(String(source.url || '')));
+          const discoveredSources = (research.sources || []).filter((source) => { const url = String(source.url || '').toLowerCase(); return url.startsWith('https://') || url.startsWith('http://'); });
           if (discoveredSources.length && String(research.summary || '').trim().length >= 40) {
             const draftItems = readLocalArray(KNOWLEDGE_DRAFTS_KEY);
             const firstSource = discoveredSources[0];
