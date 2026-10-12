@@ -295,7 +295,7 @@ form.addEventListener('submit', async (event) => {
     } else {
       const top = localMatches[0];
       if (top) {
-        result = { text: top.text + (top.sources.length ? '\\n\\nRujukan: ' + top.sources.join(' · ') : ''), mode: 'local-knowledge' };
+        result = { text: top.text, mode: 'local-knowledge' };
         runtime.history.push({ role: 'user', text: message, at: new Date().toISOString() }, { role: 'assistant', text: result.text, intent: top.topic, at: new Date().toISOString() });
         runtime.history = runtime.history.slice(-24);
         status.textContent = `Pengetahuan lokal aktif · ${top.topic}`;
