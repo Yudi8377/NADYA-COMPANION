@@ -95,17 +95,14 @@ function speak(text) {
   // the forced English accent the user reported. Only voices tagged for the target language qualify.
   const languageCode = lang.split('-')[0].toLowerCase();
   const candidates = voiceList.filter((voice) => String(voice.lang || '').toLowerCase().startsWith(languageCode));
-  // Speech language wins over gender. Never assign an English voice to Indonesian
-  // text: it makes ARYA pronounce Indonesian with an English accent. For ARYA,
-  // prefer a recognized male Indonesian voice; if unavailable, use an Indonesian
-  // voice with lower pitch rather than switching to English.
+  // ARYA must use a voice that can actually be identified as masculine.
+  // Pitch alone cannot turn a feminine TTS voice into a male voice, so fail closed
+  // instead of silently choosing an arbitrary Indonesian voice.
   const requestedVoice = persona.voiceName && voiceList.find((voice) => voice.name === persona.voiceName);
   const requestedMatchesLanguage = requestedVoice && String(requestedVoice.lang || '').toLowerCase().startsWith(languageCode);
   const selected = persona.gender === 'masculine'
     ? ((requestedMatchesLanguage && maleVoiceName(requestedVoice.name) ? requestedVoice : null)
       || candidates.find((voice) => maleVoiceName(voice.name))
-      || candidates.find((voice) => !femalePattern.test(voice.name) && /microsoft|natural|neural|google/i.test(voice.name))
-      || candidates.find((voice) => !femalePattern.test(voice.name))
       || null)
     : ((requestedMatchesLanguage ? requestedVoice : null)
       || candidates.find((voice) => femalePattern.test(voice.name))
@@ -115,7 +112,11 @@ function speak(text) {
     setVoiceState('idle', 'ARYA menggunakan suara bahasa Indonesia', 'Pilihan suara ' + requestedVoice.name + ' berbahasa ' + requestedVoice.lang + ', jadi dilewati agar pelafalan bahasa Indonesia tidak beraksen Inggris.');
   }
   if (!selected) {
-    setVoiceState('idle', companionName() + ': suara yang cocok tidak tersedia', persona.gender === 'masculine' ? 'ARYA tidak akan memakai suara yang terdeteksi feminin. Aktifkan/pasang suara pria Bahasa Indonesia (misalnya Microsoft Ardi jika tersedia) di pengaturan Windows, lalu muat ulang halaman dan pilih suara itu di Pengaturan Persona.' : 'Pasang/aktifkan suara bahasa Indonesia di pengaturan perangkat, lalu muat ulang halaman. Suara Inggris sengaja tidak dipakai untuk membaca teks Indonesia.');
+    const detected = candidates.map((voice) => voice.name).slice(0, 8);
+    const detail = persona.gender === 'masculine'
+      ? 'Browser tidak menyediakan suara Bahasa Indonesia yang namanya teridentifikasi sebagai suara pria. ARYA menghentikan audio daripada memakai suara feminin. Suara Bahasa Indonesia yang terdeteksi: ' + (detected.length ? detected.join(', ') : 'tidak ada') + '. Pasang voice pria Indonesia di sistem, lalu muat ulang halaman.'
+      : 'Pasang/aktifkan suara bahasa Indonesia di pengaturan perangkat, lalu muat ulang halaman. Suara Inggris sengaja tidak dipakai untuk membaca teks Indonesia.';
+    setVoiceState('idle', companionName() + ': suara yang cocok tidak tersedia', detail);
     return;
   }
   const chunks = clean.match(/[^.!?]+[.!?]+|[^.!?]+$/g)?.map((part) => part.trim()).filter(Boolean) || [clean];
