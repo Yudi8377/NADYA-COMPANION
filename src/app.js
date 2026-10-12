@@ -10,9 +10,17 @@ const memory = new LocalMemoryStore();
 const orchestrator = new NadyaAgentTeam();
 const provider = new HttpChatProvider();
 const knowledge = new LocalKnowledgeBase();
-const personaDefaults = { role: 'friend', gender: 'feminine', avatar: 'orb', style: 'adaptive', language: 'id', pauses: 'balanced', voiceName: '' };
+const personaDefaults = { role: 'friend', gender: 'masculine', avatar: 'orb', style: 'adaptive', language: 'id', pauses: 'balanced', voiceName: '' };
 let persona = { ...personaDefaults };
 try { persona = { ...personaDefaults, ...JSON.parse(localStorage.getItem('nadya.persona.v1') || '{}') }; } catch {}
+// One-time migration: ARYA is the requested active persona; older browser storage defaulted to NADYA.
+try {
+  if (localStorage.getItem('nadya.arya-voice-migration.v1') !== 'done') {
+    persona.gender = 'masculine'; persona.language = 'id'; persona.voiceName = '';
+    localStorage.setItem('nadya.persona.v1', JSON.stringify(persona));
+    localStorage.setItem('nadya.arya-voice-migration.v1', 'done');
+  }
+} catch {}
 const personaNames = { feminine: 'NADYA', masculine: 'ARYA', neutral: 'NADYA' };
 let availableVoices = [];
 function refreshVoiceOptions() {
@@ -98,7 +106,6 @@ function speak(text) {
       || candidates.find((voice) => maleVoiceName(voice.name))
       || candidates.find((voice) => !femalePattern.test(voice.name) && /microsoft|natural|neural|google/i.test(voice.name))
       || candidates.find((voice) => !femalePattern.test(voice.name))
-      || candidates[0]
       || null)
     : ((requestedMatchesLanguage ? requestedVoice : null)
       || candidates.find((voice) => femalePattern.test(voice.name))
@@ -108,7 +115,7 @@ function speak(text) {
     setVoiceState('idle', 'ARYA menggunakan suara bahasa Indonesia', 'Pilihan suara ' + requestedVoice.name + ' berbahasa ' + requestedVoice.lang + ', jadi dilewati agar pelafalan bahasa Indonesia tidak beraksen Inggris.');
   }
   if (!selected) {
-    setVoiceState('idle', companionName() + ': suara bahasa ' + languageCode + ' tidak tersedia', 'Pasang/aktifkan suara bahasa Indonesia di pengaturan Windows, lalu muat ulang halaman. Suara Inggris sengaja tidak dipakai untuk membaca teks Indonesia.');
+    setVoiceState('idle', companionName() + ': suara yang cocok tidak tersedia', persona.gender === 'masculine' ? 'ARYA tidak akan memakai suara yang terdeteksi feminin. Aktifkan/pasang suara pria Bahasa Indonesia (misalnya Microsoft Ardi jika tersedia) di pengaturan Windows, lalu muat ulang halaman dan pilih suara itu di Pengaturan Persona.' : 'Pasang/aktifkan suara bahasa Indonesia di pengaturan perangkat, lalu muat ulang halaman. Suara Inggris sengaja tidak dipakai untuk membaca teks Indonesia.');
     return;
   }
   const chunks = clean.match(/[^.!?]+[.!?]+|[^.!?]+$/g)?.map((part) => part.trim()).filter(Boolean) || [clean];
@@ -168,7 +175,7 @@ function savePersona() {
   persona = { ...personaDefaults, ...readPersonaForm() };
   try { localStorage.setItem('nadya.persona.v1', JSON.stringify(persona)); } catch {}
   applyPersona();
-  if (personaStatus) { const voices = availableVoices.length ? availableVoices : (('speechSynthesis' in window) ? window.speechSynthesis.getVoices() : []); const chosen = persona.voiceName ? voices.find((v) => v.name === persona.voiceName) : null; const languageCode = (languageTags[persona.language] || 'id-ID').split('-')[0].toLowerCase(); const maleAvailable = voices.some((v) => String(v.lang || '').toLowerCase().startsWith(languageCode) && maleVoiceName(v.name)); personaStatus.textContent = 'Preferensi tersimpan di browser ini. Nama tampilan: ' + companionName() + '. ' + (persona.gender === 'masculine' && !maleAvailable ? 'Peringatan: perangkat tidak melaporkan suara pria berbahasa ' + languageCode + '. ARYA memakai suara bahasa yang benar dengan pitch lebih rendah; karakter pria tidak dapat dijamin tanpa voice pria yang terpasang.' : chosen ? 'Suara dipilih: ' + chosen.name + '.' : 'Suara otomatis mengikuti perangkat.'); }
+  if (personaStatus) { const voices = availableVoices.length ? availableVoices : (('speechSynthesis' in window) ? window.speechSynthesis.getVoices() : []); const chosen = persona.voiceName ? voices.find((v) => v.name === persona.voiceName) : null; const languageCode = (languageTags[persona.language] || 'id-ID').split('-')[0].toLowerCase(); const maleAvailable = voices.some((v) => String(v.lang || '').toLowerCase().startsWith(languageCode) && maleVoiceName(v.name)); personaStatus.textContent = 'Preferensi tersimpan di browser ini. Nama tampilan: ' + companionName() + '. ' + (persona.gender === 'masculine' && !maleAvailable ? 'Peringatan: belum terdeteksi suara pria Bahasa Indonesia. ARYA tidak akan sengaja dialihkan ke suara yang terdeteksi feminin; pasang suara pria Indonesia di sistem agar audio bisa dihasilkan.' : chosen ? 'Suara dipilih: ' + chosen.name + '.' : 'Suara otomatis memilih suara Indonesia yang cocok.'); }
   setVoiceState('idle', companionName() + ' siap', 'Preferensi persona diterapkan.');
 }
 document.querySelector('#save-persona')?.addEventListener('click', savePersona);
