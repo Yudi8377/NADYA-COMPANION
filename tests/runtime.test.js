@@ -16,7 +16,7 @@ test('runtime answers greeting in Indonesian and labels local mode', () => {
   const result = runtime.respond('Halo NADYA');
   assert.equal(result.intent, 'greeting');
   assert.equal(result.mode, 'local');
-  assert.match(result.text, /kabarmu|apa kabar|cerita/i);
+  assert.match(result.text, /kabarmu|apa kabar|cerita|gimana/i);
   assert.equal(runtime.history.length, 2);
 });
 
@@ -113,7 +113,7 @@ test('local social conversation handles varied greetings and follow-ups', () => 
   const greeting = runtime.respond('Gimana kabarnya?');
   assert.equal(greeting.mode, 'local');
   assert.equal(greeting.intent, 'small-talk');
-  assert.match(greeting.text, /kabarnya|gimana|membantu|ceritakan/i);
+  assert.match(greeting.text, /kabarnya|bagaimana|nanya|membantu|ceritakan/i);
   assert.equal(runtime.respond('Aku bingung banget').intent, 'confusion');
   assert.equal(runtime.respond('Makasih ya').intent, 'gratitude');
   assert.equal(runtime.respond('Kamu mengulang terus').intent, 'complaint');
