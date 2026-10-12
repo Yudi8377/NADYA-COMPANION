@@ -70,6 +70,9 @@ function speak(text) {
   let clean = String(text).slice(0, 1800)
     .replace(/NADYA\s+AI\s+COMPANION/gi, companionName() + ' AI Companion')
     .replace(/\bNADYA\b/gi, companionName())
+    // URLs and citation tails are for reading, not speech; never vocalize long web addresses.
+    .replace(/\s*(?:Rujukan|Referensi|Sumber rujukan)\s*:\s*https?:\/\/\S+(?:\s*[·•,]\s*https?:\/\/\S+)*/gi, '')
+    .replace(/https?:\/\/[^\s)]+/gi, '')
     .replace(/\s+/g, ' ')
     .replace(/\s+([,.!?;:])/g, '$1')
     .replace(/([.!?])([A-ZÀ-Ý])/g, '$1 $2');
