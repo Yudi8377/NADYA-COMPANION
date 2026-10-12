@@ -79,4 +79,16 @@ export class LocalKnowledgeBase {
   exportJSON() {
     return JSON.stringify({ schemaVersion: 1, exportedAt: new Date().toISOString(), starterCount: STARTER_KNOWLEDGE.length, userEntries: this.userEntries() }, null, 2);
   }
+  exportBundleJSON() {
+    return JSON.stringify({
+      schemaVersion: 1,
+      packId: 'nadya-local-knowledge-id-v1',
+      exportedAt: new Date().toISOString(),
+      language: 'id-ID',
+      mode: 'offline-searchable-reference-pack',
+      limitations: 'Paket referensi untuk pencarian lokal; bukan model generatif penuh dan bukan pengganti sumber profesional terkini.',
+      bundledKnowledge: this.starter().map(({ id, topic, keywords, answer, sources }) => ({ id, topic, keywords, answer, sources })),
+      userApprovedKnowledge: this.userEntries()
+    }, null, 2);
+  }
 }
