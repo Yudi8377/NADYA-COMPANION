@@ -97,3 +97,19 @@ test('local knowledge pack explains provenance and uncertainty instead of claimi
   assert.match(quality.text, /bukan bukti bahwa isi ilmiahnya telah diverifikasi otomatis/i);
   assert.ok(quality.sources.length > 0);
 });
+
+
+test('expanded downloadable offline bundle includes curated science, web, language and accessibility topics', () => {
+  const kb = new LocalKnowledgeBase(new MemoryStorage());
+  const biology = kb.search('biologi sel jaringan organ sistem tubuh')[0];
+  assert.ok(biology);
+  assert.match(biology.text, /unit dasar kehidupan/i);
+  assert.ok(kb.search('fisika gaya energi percepatan')[0]);
+  assert.ok(kb.search('Git commit branch pull request')[0]);
+  assert.ok(kb.search('WCAG aksesibilitas keyboard screen reader')[0]);
+  const bundle = JSON.parse(kb.exportBundleJSON());
+  assert.equal(bundle.packId, 'nadya-local-knowledge-id-v1');
+  assert.ok(bundle.bundledKnowledge.length > 40);
+  assert.ok(bundle.bundledKnowledge.some((entry) => entry.id === 'biology-basics'));
+  assert.match(bundle.limitations, /bukan model generatif penuh/i);
+});
