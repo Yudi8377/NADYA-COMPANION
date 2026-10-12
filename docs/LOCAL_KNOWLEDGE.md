@@ -43,6 +43,18 @@ Paket tambahan berada di `src/core/additional-knowledge.js` dan digabungkan ke p
 
 Materi ini adalah ringkasan edukatif orisinal, bukan salinan massal dari situs sumber. Sumber eksternal hanya menjadi rujukan; isi situs tidak otomatis diunduh. Informasi hukum, kesehatan, keuangan, dan peristiwa terkini harus diperiksa kembali melalui sumber resmi yang terbaru saat internet tersedia.
 
+## Paket perluasan pengetahuan lokal
+
+Paket tambahan berikut dibundel dalam `src/core/expanded-knowledge.js`, digabungkan ke indeks pencarian lokal, dan dimasukkan ke paket JSON yang dapat diunduh:
+
+- Adaptasi iklim dan kesiapsiagaan bencana.
+- Dasar basis data/SQL, desain API, pengujian perangkat lunak, dan debugging.
+- Aksesibilitas web, hak cipta dan lisensi, literasi AI, serta berpikir sistem.
+- Perencanaan proyek, kolaborasi tim, dan presentasi publik.
+- Anggaran pribadi, kewaspadaan penipuan keuangan, dan praktik belajar Bahasa Inggris.
+
+Service worker melakukan precache terhadap modul ini untuk penggunaan offline setelah shell aplikasi berhasil dimuat. Cache browser tetap bukan installer permanen; pengguna perlu membuka aplikasi saat online setidaknya sekali dan browser dapat menghapus cache. Paket berisi ringkasan lokal dan tautan sumber, bukan salinan penuh situs web atau model AI generatif offline.
+
 ## Sumber rujukan
 
 Sumber di bawah dipakai sebagai titik awal untuk edukasi dan pemeriksaan manusia. Tautan sumber tidak berarti seluruh isi situs telah diunduh atau ditanamkan. Tinjau kembali tanggal, konteks, lisensi, dan perubahan pedoman sebelum memperbarui paket.
