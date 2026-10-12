@@ -83,17 +83,25 @@ function speak(text) {
   // the forced English accent the user reported. Only voices tagged for the target language qualify.
   const languageCode = lang.split('-')[0].toLowerCase();
   const candidates = voiceList.filter((voice) => String(voice.lang || '').toLowerCase().startsWith(languageCode));
-  const requestedVoice = persona.voiceName && candidates.find((voice) => voice.name === persona.voiceName);
-  // Prefer voices tagged for the selected language. Voice names rarely expose gender
-  // consistently, so use a language-matched fallback rather than disabling all speech.
-  // Lower pitch for ARYA helps when the device has no explicitly named masculine voice.
+  const requestedVoice = persona.voiceName && voiceList.find((voice) => voice.name === persona.voiceName);
+  // ARYA prioritizes a recognizable masculine voice even when Windows only offers
+  // male voices tagged en-GB/en-US. Prefer Indonesian male voices first; if absent,
+  // use the user's explicit male selection or another recognized male voice.
+  // Never abort speech just because voice metadata is incomplete or the list is still loading.
   const selected = persona.gender === 'masculine'
-    ? ((requestedVoice && maleVoiceName(requestedVoice.name) ? requestedVoice : null) || candidates.find((voice) => maleVoiceName(voice.name)) || candidates[0] || null)
-    : ((requestedVoice && femalePattern.test(requestedVoice.name) ? requestedVoice : null) || candidates.find((voice) => femalePattern.test(voice.name)) || candidates[0] || null);
-  if (!selected) {
-    setVoiceState('idle', companionName() + ': suara belum tersedia', 'Browser belum memuat suara yang cocok. Coba muat ulang halaman; pastikan fitur text-to-speech tersedia di perangkat. Jawaban tetap dapat dibaca di layar.');
-    return;
-  }
+    ? ((requestedVoice && maleVoiceName(requestedVoice.name) ? requestedVoice : null)
+      || candidates.find((voice) => maleVoiceName(voice.name))
+      || voiceList.find((voice) => maleVoiceName(voice.name))
+      || candidates[0]
+      || requestedVoice
+      || voiceList[0]
+      || null)
+    : ((requestedVoice && femalePattern.test(requestedVoice.name) && candidates.includes(requestedVoice) ? requestedVoice : null)
+      || candidates.find((voice) => femalePattern.test(voice.name))
+      || candidates[0]
+      || requestedVoice
+      || voiceList[0]
+      || null);
   const chunks = clean.match(/[^.!?]+[.!?]+|[^.!?]+$/g)?.map((part) => part.trim()).filter(Boolean) || [clean];
   let chunkIndex = 0;
   const speakNext = () => {
