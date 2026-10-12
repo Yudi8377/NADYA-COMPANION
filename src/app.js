@@ -258,8 +258,8 @@ form.addEventListener('submit', async (event) => {
         }
       }
       const messages = [
-        { role: 'assistant', content: contextBlock + researchContext },
         ...runtime.history.slice(-8).map((item) => ({ role: item.role, content: item.text })),
+        { role: 'assistant', content: contextBlock + researchContext },
         { role: 'user', content: message }
       ].slice(-10);
       const approvedMemories = memory.isEnabled() ? memory.list().map((item) => item.text) : [];
