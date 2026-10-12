@@ -135,7 +135,7 @@ test('expanded offline knowledge pack includes climate, databases, testing, and 
 
 test('trend literacy encourages careful verification and long-term self-development', () => {
   const kb = new LocalKnowledgeBase(new MemoryStorage());
-  const trend = kb.search('bagaimana menilai isu viral sebelum membagikan')[0];
+  const trend = kb.search('bagaimana mengecek sumber aslinya dan tanggal pada isu viral sebelum membagikan')[0];
   assert.ok(trend);
   assert.match(trend.text, /sumber aslinya/i);
   const deepfake = kb.search('cara memeriksa video deepfake dan suara AI')[0];
