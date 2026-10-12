@@ -29,6 +29,20 @@
 14. Batas kemampuan NADYA dan kapan meminta dukungan manusia.
 15. Privasi, memori lokal, dan pengetahuan yang terus berkembang.
 
+## Paket pengetahuan tambahan yang dibundel
+
+Paket tambahan berada di `src/core/additional-knowledge.js` dan digabungkan ke pencarian lokal oleh `src/core/knowledge.js`. Ringkasan berikut dapat dicari tanpa internet setelah aplikasi tersimpan/terbuka pada perangkat:
+
+- Berpikir kritis, pemeriksaan hoaks, metode ilmiah, dan literasi sumber.
+- Strategi belajar, pemecahan masalah matematika, komputer, algoritma, dan debugging.
+- Keamanan digital, privasi, literasi AI, dan penggunaan AI yang bertanggung jawab.
+- Literasi keuangan dasar dan kewaspadaan terhadap penipuan.
+- Pancasila, UUD 1945, kewargaan, budaya Nusantara, kearifan lokal, dan cara membaca sumber sejarah.
+- Lingkungan, perubahan iklim, komunikasi/negosiasi, pengambilan keputusan, serta menulis Bahasa Indonesia.
+- Literasi informasi kesehatan yang aman dan batasan pengetahuan NADYA.
+
+Materi ini adalah ringkasan edukatif orisinal, bukan salinan massal dari situs sumber. Sumber eksternal hanya menjadi rujukan; isi situs tidak otomatis diunduh. Informasi hukum, kesehatan, keuangan, dan peristiwa terkini harus diperiksa kembali melalui sumber resmi yang terbaru saat internet tersedia.
+
 ## Sumber rujukan
 
 Sumber di bawah dipakai sebagai titik awal untuk edukasi dan pemeriksaan manusia. Tautan sumber tidak berarti seluruh isi situs telah diunduh atau ditanamkan. Tinjau kembali tanggal, konteks, lisensi, dan perubahan pedoman sebelum memperbarui paket.
