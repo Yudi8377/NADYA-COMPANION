@@ -252,7 +252,28 @@ form.addEventListener('submit', async (event) => {
           const research = await provider.research({ query: message, context: contextBlock });
           const sourceLines = (research.sources || []).slice(0, 5).map((source) => `- ${source.title || 'Sumber'} — ${source.url || ''}${source.publishedDate ? ' (' + source.publishedDate + ')' : ''}`).join('\\n');
           researchContext = '\\n\\nHASIL PENELUSURAN ONLINE (periksa sumber dan tanggal; bukan jaminan kebenaran):\\n' + String(research.summary || '').slice(0, 5000) + (sourceLines ? '\\nSumber yang dikembalikan:\\n' + sourceLines : '');
-          researchLabel = ' · penelusuran online dicoba';
+          // Keep autonomous discoveries as local review drafts; never auto-approve them as trusted knowledge.
+          const discoveredSources = (research.sources || []).filter((source) => /^https?:\\/\\//i.test(String(source.url || '')));
+          if (discoveredSources.length && String(research.summary || '').trim().length >= 40) {
+            const draftItems = readLocalArray(KNOWLEDGE_DRAFTS_KEY);
+            const firstSource = discoveredSources[0];
+            const draft = {
+              id: globalThis.crypto?.randomUUID?.() || 'research-' + Date.now(),
+              topic: String(firstSource.title || message).slice(0, 120),
+              text: (String(research.summary).slice(0, 2200) + '\\n\\nTemuan pencarian perlu dibandingkan dengan isi sumber primer; ringkasan mesin pencari bukan verifikasi.').slice(0, 3000),
+              source: String(firstSource.url).slice(0, 500),
+              publishedAt: String(firstSource.publishedDate || '').slice(0, 10),
+              evidenceType: 'Hasil pencarian web — belum diverifikasi',
+              limitations: 'Draf otomatis dari pencarian kontekstual NADYA. Buka sumber asli, periksa tanggal/penulis/metode dan bandingkan sumber independen sebelum menyetujui.',
+              status: 'draft',
+              createdAt: new Date().toISOString()
+            };
+            if (!draftItems.some((item) => item.source === draft.source && item.topic === draft.topic)) {
+              writeLocalArray(KNOWLEDGE_DRAFTS_KEY, [draft, ...draftItems].slice(0, 100));
+              if (typeof renderKnowledgeDrafts === 'function') renderKnowledgeDrafts();
+            }
+          }
+          researchLabel = ' · penelusuran online dicoba; temuan disimpan sebagai draf lokal';
         } catch (researchError) {
           researchLabel = ' · riset online tidak tersedia (' + (researchError.code || 'koneksi') + ')';
         }
