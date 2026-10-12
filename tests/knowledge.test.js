@@ -113,3 +113,22 @@ test('expanded downloadable offline bundle includes curated science, web, langua
   assert.ok(bundle.bundledKnowledge.some((entry) => entry.id === 'biology-basics'));
   assert.match(bundle.limitations, /bukan model generatif penuh/i);
 });
+
+test('expanded offline knowledge pack includes climate, databases, testing, and collaboration', () => {
+  const kb = new LocalKnowledgeBase(new MemoryStorage());
+  const climate = kb.search('adaptasi perubahan iklim dan ketahanan komunitas')[0];
+  assert.ok(climate);
+  assert.match(climate.text, /mengurangi dampak risiko/i);
+  const database = kb.search('dasar database SQL primary key dan foreign key')[0];
+  assert.ok(database);
+  assert.match(database.text, /SQL injection/i);
+  const testing = kb.search('software testing unit test debugging regresi')[0];
+  assert.ok(testing);
+  assert.match(testing.text, /tes regresi/i);
+  const ai = kb.search('literasi AI halusinasi dan verifikasi jawaban model')[0];
+  assert.ok(ai);
+  assert.match(ai.text, /dapat menghasilkan penjelasan yang lancar tetapi salah/i);
+  const bundle = JSON.parse(kb.exportBundleJSON());
+  assert.ok(bundle.bundledKnowledge.some((item) => item.id === 'systems-thinking'));
+  assert.ok(bundle.bundledKnowledge.some((item) => item.id === 'disaster-preparedness'));
+});
