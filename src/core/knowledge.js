@@ -1,3 +1,5 @@
+import { ADDITIONAL_KNOWLEDGE } from './additional-knowledge.js';
+
 const STARTER_KNOWLEDGE = [
   { id: 'identity', topic: 'Identitas NADYA', keywords: ['siapa kamu', 'tentang nadya', 'identitas'], answer: 'Aku NADYA AI COMPANION. Aku dirancang sebagai pendamping berbahasa Indonesia untuk refleksi, belajar, komunikasi, karakter, dan kesejahteraan sehari-hari. Aku bukan psikolog, dokter, atau layanan darurat. Pengetahuan lokal berasal dari materi yang dibundel; kemampuan generatif tetap bergantung pada model yang benar-benar dikonfigurasi.', sources: ['https://www.apa.org/topics/'] },
   { id: 'offline', topic: 'Mode offline', keywords: ['offline', 'tanpa internet', 'lokal'], answer: 'Dalam mode lokal, aku dapat mencari materi yang sudah dibundel dan catatan pengetahuan yang kamu setujui di perangkat ini. Pencarian sumber baru memerlukan internet. Basis pengetahuan bukan model bahasa generatif lengkap; aku akan jujur tentang batasan ini.', sources: [] },
@@ -31,6 +33,7 @@ const STARTER_KNOWLEDGE = [
   { id: 'sundanese-language', topic: 'Bahasa Sunda dan kesantunan', keywords: ['bahasa sunda', 'punten', 'hatur nuhun', 'kumaha damang'], answer: 'Contoh Bahasa Sunda: “punten” (permisi/maaf), “hatur nuhun” (terima kasih), “kumaha damang?” (bagaimana kabar, bentuk sopan yang umum). Ragam Sunda dan pilihan kata berbeda antarwilayah serta situasi. Gunakan contoh sederhana, hindari mengaku fasih jika belum yakin, dan minta koreksi penutur yang kompeten.', sources: [] },
   { id: 'madurese-language', topic: 'Bahasa Madura dan variasi lokal', keywords: ['bahasa madura', 'madurese', 'terima kasih madura', 'salam madura'], answer: 'Bahasa Madura memiliki variasi dialek dan tingkat tutur; kosakata dapat berbeda antardaerah dan konteks sosial. Untuk menghindari salah ungkap, NADYA sebaiknya meminta pengguna memilih dialek atau memberi contoh kalimat yang ingin dipakai, lalu menyatakan ketidakpastian bila belum terverifikasi. Jangan mengarang terjemahan untuk topik penting atau sensitif.', sources: [] },
   { id: 'regional-languages', topic: 'Bahasa daerah Indonesia lainnya', keywords: ['bahasa daerah', 'bahasa bali', 'minang', 'bugis', 'batak', 'banjar', 'aceh', 'dayak', 'papua'], answer: 'Indonesia memiliki banyak bahasa daerah—antara lain Bali, Minangkabau, Bugis, Batak, Banjar, Aceh, Sasak, berbagai bahasa Dayak dan bahasa-bahasa Papua. Kemampuan tiap bahasa tidak otomatis sama. Untuk hasil yang baik, tentukan bahasa dan dialek, gunakan kamus atau sumber penutur tepercaya, minta koreksi, serta jangan menyajikan terjemahan yang belum diverifikasi sebagai pasti benar.', sources: [] },
+  ...ADDITIONAL_KNOWLEDGE,
 ];
 
 function normalize(value) {
