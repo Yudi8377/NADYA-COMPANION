@@ -119,8 +119,7 @@ export const ADDITIONAL_KNOWLEDGE = [
     keywords: ['tambah pengetahuan', 'knowledge base', 'basis pengetahuan', 'update pengetahuan', 'kurasi', 'riset online', 'sumber pengetahuan'],
     answer: 'Paket lokal NADYA adalah kumpulan ringkasan edukatif yang dapat dicari tanpa internet; paket ini bukan model bahasa besar dan tidak otomatis mengetahui peristiwa terbaru. Saat online, sumber baru harus diperiksa asal, tanggal, bukti, lisensi, konteks, dan keterbatasannya; klaim penting dibandingkan dengan sumber independen. Ringkasan ditulis ulang dengan kata-kata sendiri dan dicatat sumbernya. Persetujuan lokal berarti materi disimpan untuk pencarian, bukan bukti bahwa isi ilmiahnya telah diverifikasi otomatis. Aturan keselamatan, izin, dan privasi tidak boleh diubah oleh proses pembaruan pengetahuan.',
     sources: ['https://www.unesco.org/en/media-information-literacy']
-  }
-
+  },
   {
     id: 'biology-basics',
     topic: 'Biologi dasar dan tubuh manusia',
