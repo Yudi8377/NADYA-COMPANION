@@ -69,3 +69,31 @@ test('approved knowledge preserves provenance, date, evidence type, and uncertai
   assert.match(item.limitations, /Tidak semua temuan/);
   assert.equal(kb.userEntries()[0].source, 'https://example.org/learning');
 });
+
+
+test('expanded local pack covers science, coding, civic literacy, finance, and AI literacy offline', () => {
+  const kb = new LocalKnowledgeBase(new MemoryStorage());
+  const science = kb.search('bagaimana metode ilmiah membedakan korelasi dan sebab akibat')[0];
+  assert.ok(science);
+  assert.match(science.text, /Korelasi berarti dua hal berubah bersama/i);
+  const coding = kb.search('cara debugging algoritma dan keamanan token API')[0];
+  assert.ok(coding);
+  assert.match(coding.text, /Jangan menaruh kata sandi/i);
+  const civic = kb.search('jelaskan Pancasila dan UUD 1945')[0];
+  assert.ok(civic);
+  assert.match(civic.text, /dasar negara Indonesia/i);
+  const finance = kb.search('literasi keuangan anggaran tabungan dan investasi')[0];
+  assert.ok(finance);
+  assert.match(finance.text, /Investasi selalu memiliki risiko/i);
+  const ai = kb.search('apa batasan AI dan halusinasi AI')[0];
+  assert.ok(ai);
+  assert.match(ai.text, /jawabannya bisa keliru/i);
+});
+
+test('local knowledge pack explains provenance and uncertainty instead of claiming automatic verification', () => {
+  const kb = new LocalKnowledgeBase(new MemoryStorage());
+  const quality = kb.search('bagaimana NADYA memperbarui basis pengetahuan dan riset online')[0];
+  assert.ok(quality);
+  assert.match(quality.text, /bukan bukti bahwa isi ilmiahnya telah diverifikasi otomatis/i);
+  assert.ok(quality.sources.length > 0);
+});
