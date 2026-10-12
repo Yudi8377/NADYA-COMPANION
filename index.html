@@ -23,6 +23,7 @@
         <button class="nav-item" data-view="growth"><span>↗</span> Personal Growth Map</button>
         <button class="nav-item" data-view="knowledge"><span>⌕</span> Knowledge Intelligence</button>
         <button class="nav-item" data-view="agents"><span>✳</span> Multi-Agent</button>
+        <button class="nav-item" data-view="camera"><span>◎</span> Kamera & Visual</button>
         <button class="nav-item" data-view="capabilities"><span>◈</span> Kapabilitas</button>
       </nav>
       <div class="sidebar-bottom"><span class="online-dot"></span><span>Runtime lokal</span><span class="version">v0.3.0</span></div>
@@ -117,6 +118,18 @@
           <label for="knowledge-limits">Keterbatasan / ketidakpastian</label><textarea id="knowledge-limits" rows="2" maxlength="1000" required placeholder="Apa yang belum diketahui, konteks yang terbatas, atau alasan untuk berhati-hati?"></textarea>
           <div class="memory-actions"><button class="primary-button" type="submit">Simpan sebagai draf</button><button id="knowledge-export" class="outline-button" type="button">Unduh paket pengetahuan lokal</button></div>
         </form><p id="knowledge-status" class="muted-note" aria-live="polite">Draf belum menjadi pengetahuan aktif.</p><div id="knowledge-drafts" class="memory-list"></div>
+      </section>
+
+      <section data-panel="camera" class="workspace" hidden>
+        <div class="section-heading"><p class="eyebrow">PERANGKAT & PRIVASI</p><h2>Kamera dan pengamatan visual</h2><p class="subheading">NADYA dapat memeriksa kamera yang tersedia dan menampilkan pratinjau setelah kamu memberi izin. Kamera tidak aktif otomatis.</p></div>
+        <article class="setting-card">
+          <div><h3>Perangkat kamera</h3><p>Pratinjau diproses di browser. Jangan gunakan fitur ini untuk diagnosis kesehatan atau mengambil keputusan penting tentang seseorang.</p></div>
+          <label for="camera-device">Pilih kamera</label><select id="camera-device"><option value="">Memeriksa perangkat…</option></select>
+          <div class="memory-actions"><button id="camera-start" class="primary-button" type="button">Izinkan dan aktifkan kamera</button><button id="camera-stop" class="outline-button" type="button" disabled>Matikan kamera</button></div>
+          <video id="camera-preview" autoplay muted playsinline style="display:none;width:100%;max-width:720px;border-radius:16px;margin-top:16px;background:#10151f"></video>
+          <p id="camera-status" class="muted-note" aria-live="polite">Kamera belum diaktifkan. Izin browser diperlukan.</p>
+          <p class="muted-note">Batas kemampuan: pratinjau saja belum mendeteksi emosi atau mengukur kelelahan. Analisis wajah memerlukan model teruji, persetujuan khusus, dan pengujian pada perangkat sasaran. Kamera depan dan belakang bersamaan tidak didukung oleh semua perangkat.</p>
+        </article>
       </section>
 
       <section data-panel="capabilities" class="workspace" hidden>
