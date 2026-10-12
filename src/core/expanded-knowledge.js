@@ -106,4 +106,82 @@ export const EXPANDED_KNOWLEDGE = [
     answer: 'Berpikir sistem melihat hubungan antarkomponen, bukan hanya satu kejadian. Tanyakan siapa yang terlibat, aliran informasi atau sumber daya, umpan balik, jeda waktu, dan dampak tak langsung. Solusi cepat dapat memindahkan masalah ke tempat lain atau menimbulkan efek samping. Buat peta sederhana, tulis asumsi, cari bukti yang bertentangan, dan uji perubahan dalam skala kecil bila aman. Model sistem membantu menalar, tetapi tetap menyederhanakan kenyataan dan perlu diperbarui dengan data.',
     sources: ['https://thesystemsthinker.com/']
   }
+  ,
+  {
+    id: 'trend-literacy',
+    topic: 'Literasi isu viral dan tren secara kritis',
+    keywords: ['tren viral', 'isu viral', 'trending', 'berita viral', 'cek fakta tren', 'sumber asli', 'sumber aslinya'],
+    answer: 'Sebelum percaya atau membagikan isu viral, berhenti sejenak dan periksa sumber aslinya, penulis/lembaga, tanggal, konteks penuh, bukti, serta apakah sumber independen menguatkan klaim. Bedakan fakta, opini, satire, promosi, dan hal yang belum diketahui. Popularitas, jumlah tayangan, dan jawaban AI bukan bukti kebenaran. Untuk isu yang cepat berubah, cari pembaruan dari sumber resmi dan pemeriksa fakta yang transparan.',
+    sources: ['https://www.unesco.org/en/media-information-literacy', 'https://www.reuters.com/fact-check/']
+  },
+  {
+    id: 'deepfake-literacy',
+    topic: 'Mengenali deepfake dan media sintetis',
+    keywords: ['deepfake', 'video palsu', 'suara tiruan', 'media sintetis', 'video AI', 'verifikasi video'],
+    answer: 'Video, gambar, atau suara dapat dibuat atau diubah dengan AI sehingga tampak meyakinkan. Jangan menyimpulkan keaslian hanya dari tampilan atau suara. Cari unggahan asli, periksa konteks dan tanggal, lalu konfirmasi melalui kanal lain yang sudah dikenal—terutama sebelum mengirim uang, membagikan tuduhan, atau meneruskan pesan darurat. Ketidakwajaran visual dapat menjadi petunjuk, tetapi ketiadaan petunjuk bukan bukti bahwa media asli.',
+    sources: ['https://www.cisa.gov/secure-our-world', 'https://www.nist.gov/artificial-intelligence']
+  },
+  {
+    id: 'rage-bait-literacy',
+    topic: 'Rage bait, polarisasi, dan manipulasi emosi',
+    keywords: ['rage bait', 'konten pemancing amarah', 'polarisasi', 'provokasi online', 'konten provokatif'],
+    answer: 'Sebagian konten sengaja dirancang untuk membuat orang marah, saling menyerang, dan terus berinteraksi. Sebelum bereaksi, baca konteks lengkap, periksa apakah judul cocok dengan isi, dan tanyakan apakah membagikannya membantu atau hanya memperluas provokasi. Kritik gagasan dan perilaku secara spesifik; jangan menyerang identitas, mengancam, atau menyebarkan data pribadi. Berhenti mengikuti akun yang berulang kali memanipulasi emosi adalah pilihan yang wajar.',
+    sources: ['https://www.unesco.org/en/media-information-literacy']
+  },
+  {
+    id: 'viral-challenge-safety',
+    topic: 'Menilai keamanan tantangan viral',
+    keywords: ['tantangan viral', 'viral challenge', 'challenge berbahaya', 'ikut tren berbahaya'],
+    answer: 'Popularitas bukan bukti bahwa tantangan aman. Hindari tantangan yang melibatkan cedera, zat berbahaya, tindakan ilegal, gangguan terhadap orang lain, pelanggaran privasi, atau tekanan untuk merahasiakannya. Jangan mencoba hanya demi penerimaan sosial atau jumlah tayangan. Kamu boleh menolak, meninggalkan grup, dan meminta bantuan orang dewasa tepercaya jika ada tekanan atau risiko nyata.',
+    sources: ['https://www.unicef.org/parenting/child-care/keeping-children-safe-online']
+  },
+  {
+    id: 'social-comparison-and-self-worth',
+    topic: 'FOMO, perbandingan sosial, dan harga diri',
+    keywords: ['fomo', 'membandingkan diri', 'doomscrolling', 'harga diri media sosial', 'kecanduan scroll'],
+    answer: 'Linimasa biasanya menampilkan pilihan momen, bukan gambaran utuh kehidupan seseorang. Jika konten membuatmu cemas, iri, atau terdorong terus menggulir, jeda dan tanyakan kebutuhan yang sebenarnya—informasi, hiburan, atau hubungan sosial. Atur notifikasi dan waktu penggunaan sesuai kebutuhan, pilih akun yang memberi manfaat, dan kembalilah ke kegiatan serta hubungan nyata yang penting bagimu. Nilai diri tidak ditentukan oleh likes, pengikut, atau tren.',
+    sources: ['https://www.unicef.org/adolescentmentalhealthhub/resources/adolescents']
+  },
+  {
+    id: 'scam-trends-and-urgency',
+    topic: 'Penipuan digital yang memanfaatkan tren dan rasa mendesak',
+    keywords: ['scam viral', 'penipuan tren', 'phishing', 'otp', 'giveaway palsu', 'lowongan palsu'],
+    answer: 'Waspadai hadiah mendadak, lowongan yang meminta biaya, tautan tiruan, permintaan OTP, dan pesan yang memaksa bertindak segera atau merahasiakan sesuatu. Verifikasi lewat aplikasi atau alamat resmi yang kamu ketik sendiri; jangan gunakan kontak dari pesan mencurigakan. Jangan meminjamkan rekening, identitas, atau kode akses. Jika telanjur membagikan data atau mengirim uang, hubungi penyedia layanan atau bank melalui kanal resmi dan simpan bukti.',
+    sources: ['https://www.cisa.gov/secure-our-world', 'https://www.ojk.go.id/']
+  },
+  {
+    id: 'ai-hype-and-critical-use',
+    topic: 'Hype AI dan penggunaan kecerdasan buatan secara kritis',
+    keywords: ['hype AI', 'tren AI', 'AI terbaru', 'klaim AI', 'halusinasi AI', 'literasi kecerdasan buatan'],
+    answer: 'Klaim tentang AI dapat melebih-lebihkan kemampuan, akurasi, atau manfaat suatu produk. Periksa demonstrasi independen, batasan, kebutuhan data, biaya berulang, privasi, dan siapa yang bertanggung jawab jika hasil salah. Uji pada tugas kecil dengan kriteria yang jelas dan bandingkan dengan cara lain. Jangan menyerahkan keputusan penting sepenuhnya kepada AI; jawaban yang lancar tetap perlu diverifikasi.',
+    sources: ['https://www.unesco.org/en/digital-education/artificial-intelligence', 'https://www.nist.gov/artificial-intelligence']
+  },
+  {
+    id: 'financial-hype-and-fomo',
+    topic: 'FOMO finansial dan klaim cepat kaya',
+    keywords: ['fomo finansial', 'cepat kaya', 'investasi viral', 'keuntungan pasti', 'crypto hype', 'trading viral'],
+    answer: 'Jangan mengambil keputusan keuangan hanya karena tren, testimoni, influencer, atau takut ketinggalan. Janji keuntungan pasti atau tinggi tanpa risiko adalah tanda bahaya. Pahami produk, risiko, biaya, likuiditas, dan izin pihak terkait melalui kanal resmi regulator. Hindari utang atau penggunaan uang kebutuhan pokok demi mengikuti tren. Materi ini bersifat edukasi umum, bukan rekomendasi membeli aset.',
+    sources: ['https://www.ojk.go.id/', 'https://sikapiuangmu.ojk.go.id/']
+  },
+  {
+    id: 'privacy-and-digital-footprint',
+    topic: 'Privasi, doxxing, dan jejak digital',
+    keywords: ['doxxing', 'jejak digital', 'privasi online', 'sebar alamat', 'data pribadi viral'],
+    answer: 'Unggahan, foto, lokasi, dan komentar dapat disalin atau disebarkan di luar konteks awal. Hindari membagikan alamat, sekolah, nomor telepon, dokumen, atau lokasi real-time yang tidak perlu. Jangan ikut menyebarkan identitas orang lain sebagai hukuman atau berdasarkan rumor. Tinjau pengaturan privasi, minta izin sebelum mengunggah orang lain, dan simpan bukti serta minta bantuan jika terjadi ancaman atau penyebaran data pribadi.',
+    sources: ['https://www.cisa.gov/secure-our-world', 'https://www.unicef.org/parenting/child-care/keeping-children-safe-online']
+  },
+  {
+    id: 'constructive-response-to-current-events',
+    topic: 'Merespons isu sosial secara konstruktif',
+    keywords: ['isu sosial', 'berita terkini', 'debat online', 'konflik viral', 'diskusi publik'],
+    answer: 'Ketika menanggapi isu sosial, pisahkan fakta yang sudah terverifikasi dari dugaan dan pendapat. Baca sumber dengan perspektif berbeda yang dapat dipertanggungjawabkan, akui ketidakpastian, dan koreksi kesalahan bila ada bukti baru. Kritik tindakan atau kebijakan secara spesifik tanpa menghasut, mengancam, atau menyebarkan data pribadi. Jika ingin membantu, pilih tindakan yang aman dan nyata—misalnya dukungan komunitas atau informasi dari lembaga tepercaya.',
+    sources: ['https://www.unesco.org/en/media-information-literacy']
+  },
+  {
+    id: 'trend-checklist',
+    topic: 'Checklist sebelum percaya, membagikan, membeli, atau mengikuti tren',
+    keywords: ['checklist tren', 'cek sebelum share', 'sebelum ikut tren', 'sebelum membeli viral', 'verifikasi isu'],
+    answer: 'Gunakan lima pertanyaan: (1) siapa sumber aslinya dan kapan diterbitkan? (2) apa bukti serta konteks lengkapnya? (3) apakah sumber independen menguatkannya? (4) apa risiko terhadap keselamatan, privasi, uang, dan orang lain? (5) apakah tindakan ini sejalan dengan tujuan jangka panjangku? Jika jawabannya belum jelas, tunda keputusan, jangan menyebarkan klaim sebagai fakta, dan cari informasi tepercaya. Berubah pikiran setelah melihat bukti adalah tanda belajar.',
+    sources: ['https://www.unesco.org/en/media-information-literacy', 'https://www.cisa.gov/secure-our-world']
+  }
 ];
