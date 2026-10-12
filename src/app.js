@@ -119,7 +119,7 @@ function speak(text) {
     utterance.lang = lang;
     if (selected) utterance.voice = selected;
     utterance.rate = emotional === 'gentle' ? 0.91 : emotional === 'bright' ? 1.0 : persona.style === 'playful' ? 0.99 : 0.95;
-    utterance.pitch = persona.gender === 'masculine' ? 0.82 : persona.gender === 'feminine' ? 1.04 : 1.0;
+    utterance.pitch = persona.gender === 'masculine' ? 0.62 : persona.gender === 'feminine' ? 1.04 : 1.0;
     if (emotional === 'gentle') utterance.pitch *= 0.98;
     if (emotional === 'bright') utterance.pitch *= 1.02;
     utterance.onstart = () => setVoiceState('speaking', companionName() + ' sedang berbicara', selected ? 'Menggunakan suara ' + selected.name + '.' : 'Suara mengikuti dukungan browser/perangkat.');
@@ -157,7 +157,7 @@ function savePersona() {
   persona = { ...personaDefaults, ...readPersonaForm() };
   try { localStorage.setItem('nadya.persona.v1', JSON.stringify(persona)); } catch {}
   applyPersona();
-  if (personaStatus) { const voices = availableVoices.length ? availableVoices : (('speechSynthesis' in window) ? window.speechSynthesis.getVoices() : []); const chosen = persona.voiceName ? voices.find((v) => v.name === persona.voiceName) : null; const maleAvailable = voices.some((v) => maleVoiceName(v.name)); personaStatus.textContent = 'Preferensi tersimpan di browser ini. Nama tampilan: ' + companionName() + '. ' + (persona.gender === 'masculine' && !chosen && !maleAvailable ? 'Peringatan: suara pria tidak terdeteksi. Pilih suara pria jika tersedia; suara bergantung pada OS/browser.' : chosen ? 'Suara dipilih: ' + chosen.name + '.' : 'Suara otomatis mengikuti perangkat.'); }
+  if (personaStatus) { const voices = availableVoices.length ? availableVoices : (('speechSynthesis' in window) ? window.speechSynthesis.getVoices() : []); const chosen = persona.voiceName ? voices.find((v) => v.name === persona.voiceName) : null; const languageCode = (languageTags[persona.language] || 'id-ID').split('-')[0].toLowerCase(); const maleAvailable = voices.some((v) => String(v.lang || '').toLowerCase().startsWith(languageCode) && maleVoiceName(v.name)); personaStatus.textContent = 'Preferensi tersimpan di browser ini. Nama tampilan: ' + companionName() + '. ' + (persona.gender === 'masculine' && !maleAvailable ? 'Peringatan: perangkat tidak melaporkan suara pria berbahasa ' + languageCode + '. ARYA memakai suara bahasa yang benar dengan pitch lebih rendah; karakter pria tidak dapat dijamin tanpa voice pria yang terpasang.' : chosen ? 'Suara dipilih: ' + chosen.name + '.' : 'Suara otomatis mengikuti perangkat.'); }
   setVoiceState('idle', companionName() + ' siap', 'Preferensi persona diterapkan.');
 }
 document.querySelector('#save-persona')?.addEventListener('click', savePersona);
