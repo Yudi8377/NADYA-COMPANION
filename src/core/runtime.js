@@ -26,7 +26,7 @@ export class NadyaRuntime {
       intent = 'small-talk'; text = 'Aku baik dan siap menemanimu ngobrol hari ini 😊 Aku tidak mengalami hari seperti manusia, tetapi aku senang bisa membantu. Kalau kamu sendiri, bagaimana kabarmu hari ini?';
     } else if (/(bagaimana kabar hari ini|gimana hari ini|hari ini bagaimana|apa kabar hari ini)/.test(normalized)) {
       intent = 'small-talk'; text = 'Hari ini aku siap menemanimu ngobrol 😊 Aku tidak punya pengalaman pribadi seperti manusia. Bagaimana harimu sejauh ini—ada hal menyenangkan atau yang sedang mengganggu pikiranmu?';
-    } else if (/^(halo|hai|hello|pagi|siang|sore|malam)\\b/.test(normalized)) {
+    } else if (/^(halo|hai|hello|pagi|siang|sore|malam)\b/.test(normalized)) {
       intent = 'greeting'; text = `Halo, aku ${this.name}. Aku siap menemani percakapanmu. Saat ini aku berjalan dalam mode lokal, jadi belum terhubung ke model AI eksternal.`;
     } else if (/(siapa kamu|kamu siapa|tentang nadya)/.test(normalized)) {
       intent = 'identity'; text = 'Aku NADYA AI COMPANION. Fondasiku dirancang untuk percakapan berbahasa Indonesia, memori yang dikendalikan pengguna, agen spesialis, dan kapabilitas yang aman secara default.';
