@@ -3,6 +3,7 @@ import { LocalMemoryStore } from './core/memory.js';
 import { NadyaAgentTeam } from './core/agents.js';
 import { HttpChatProvider } from './core/provider.js';
 import { LocalKnowledgeBase } from './core/knowledge.js';
+import './core/camera.js';
 
 const runtime = new NadyaRuntime();
 const memory = new LocalMemoryStore();
