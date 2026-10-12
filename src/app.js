@@ -118,10 +118,14 @@ function speak(text) {
     const utterance = new SpeechSynthesisUtterance(part);
     utterance.lang = lang;
     if (selected) utterance.voice = selected;
-    utterance.rate = emotional === 'gentle' ? 0.91 : emotional === 'bright' ? 1.0 : persona.style === 'playful' ? 0.99 : 0.95;
-    utterance.pitch = persona.gender === 'masculine' ? 0.62 : persona.gender === 'feminine' ? 1.04 : 1.0;
-    if (emotional === 'gentle') utterance.pitch *= 0.98;
-    if (emotional === 'bright') utterance.pitch *= 1.02;
+    // ARYA: measured pace and a grounded, lower register; keep gentle passages calm
+    // without making the voice unnaturally deep. Browser voice identity still depends on installed TTS voices.
+    utterance.rate = persona.gender === 'masculine'
+      ? (emotional === 'gentle' ? 0.86 : emotional === 'bright' ? 0.92 : 0.89)
+      : (emotional === 'gentle' ? 0.91 : emotional === 'bright' ? 1.0 : persona.style === 'playful' ? 0.99 : 0.95);
+    utterance.pitch = persona.gender === 'masculine' ? 0.78 : persona.gender === 'feminine' ? 1.04 : 1.0;
+    if (emotional === 'gentle') utterance.pitch *= persona.gender === 'masculine' ? 0.97 : 0.98;
+    if (emotional === 'bright') utterance.pitch *= persona.gender === 'masculine' ? 1.01 : 1.02;
     utterance.onstart = () => setVoiceState('speaking', companionName() + ' sedang berbicara', selected ? 'Menggunakan suara ' + selected.name + '.' : 'Suara mengikuti dukungan browser/perangkat.');
     utterance.onend = () => { if (chunkIndex < chunks.length) window.setTimeout(speakNext, /[,;:]$/.test(part) ? 100 : 170); else speakNext(); };
     utterance.onerror = () => { if (chunkIndex < chunks.length) speakNext(); else { setVoiceState('idle', companionName() + ' siap', 'Suara browser tidak tersedia; jawaban tetap bisa dibaca.'); if (voiceSessionActive) startListeningAgain(); } };
