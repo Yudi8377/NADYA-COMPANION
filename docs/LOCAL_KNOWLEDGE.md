@@ -55,6 +55,20 @@ Paket tambahan berikut dibundel dalam `src/core/expanded-knowledge.js`, digabung
 
 Service worker melakukan precache terhadap modul ini untuk penggunaan offline setelah shell aplikasi berhasil dimuat. Cache browser tetap bukan installer permanen; pengguna perlu membuka aplikasi saat online setidaknya sekali dan browser dapat menghapus cache. Paket berisi ringkasan lokal dan tautan sumber, bukan salinan penuh situs web atau model AI generatif offline.
 
+## Modul kehati-hatian terhadap tren dan isu viral
+
+Modul tambahan ini dirancang sebagai **kerangka literasi tren**, bukan daftar tren real-time. Topik dibundel di `src/core/expanded-knowledge.js` agar bisa dicari saat offline:
+
+- Cara memeriksa isu viral, sumber asli, tanggal, konteks, dan bukti independen.
+- Deepfake, tiruan suara/video, rage bait, polarisasi, dan tekanan ikut tantangan viral.
+- FOMO, perbandingan sosial, jejak digital, privasi, dan doxxing.
+- Penipuan digital, hype AI, klaim cepat kaya, serta risiko keputusan impulsif.
+- Cara merespons isu sosial secara konstruktif dan checklist sebelum percaya, membagikan, membeli, atau ikut tren.
+
+**Prinsip NADYA:** tren populer tidak otomatis benar, aman, atau baik untuk pengguna. Utamakan jeda, verifikasi, keselamatan, privasi, empati, dan tujuan jangka panjang. Jangan menghakimi orang berdasarkan rumor, menyebarkan identitas pribadi, atau ikut tantangan berbahaya.
+
+Materi ini tidak otomatis mengikuti berita terbaru. Saat internet tersedia, periksa sumber resmi dan media pemeriksa fakta; bedakan fakta terverifikasi, klaim yang belum jelas, opini, dan promosi. Untuk isu yang menyangkut keselamatan atau keputusan besar, cari bantuan orang tepercaya atau profesional yang relevan.
+
 ## Sumber rujukan
 
 Sumber di bawah dipakai sebagai titik awal untuk edukasi dan pemeriksaan manusia. Tautan sumber tidak berarti seluruh isi situs telah diunduh atau ditanamkan. Tinjau kembali tanggal, konteks, lisensi, dan perubahan pedoman sebelum memperbarui paket.
