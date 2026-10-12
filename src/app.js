@@ -60,7 +60,7 @@ const mainOrb = document.querySelector('#nadya-orb');
 function setVoiceState(state, label, help = '') { voiceOrbs.forEach((orb) => { orb.dataset.state = state; }); if (voiceState) voiceState.textContent = label; if (voiceHelp && help) voiceHelp.textContent = help; }
 function maleVoiceName(name) {
   const value = String(name || '');
-  return /\b(?:male|pria|ardi|andika|budi|reza|david|mark|alex|daniel|rishi|jorge|thomas|guy|matthew|james|george|ryan|aaron|fred|tom)\b/i.test(value)
+  return /\b(?:male|pria|laki(?:-laki)?|ardi|andika|budi|reza|david|mark|alex|daniel|rishi|jorge|thomas|guy|matthew|james|george|ryan|aaron|fred|tom|henry|liam|noah|william|eric|jason|kevin|andrew|christopher|michael|matt)\b/i.test(value)
     && !/\b(?:female|woman|zira|samantha|karen|tessa|gadis|aria|jenny|michelle|eva|susan|hazel|heera|monica|sara|victoria)\b/i.test(value);
 }
 function speak(text) {
@@ -92,6 +92,8 @@ function speak(text) {
   const selected = persona.gender === 'masculine'
     ? ((requestedMatchesLanguage && maleVoiceName(requestedVoice.name) ? requestedVoice : null)
       || candidates.find((voice) => maleVoiceName(voice.name))
+      || candidates.find((voice) => !femalePattern.test(voice.name) && /microsoft|natural|neural|google/i.test(voice.name))
+      || candidates.find((voice) => !femalePattern.test(voice.name))
       || candidates[0]
       || null)
     : ((requestedMatchesLanguage ? requestedVoice : null)
@@ -118,14 +120,14 @@ function speak(text) {
     const utterance = new SpeechSynthesisUtterance(part);
     utterance.lang = lang;
     if (selected) utterance.voice = selected;
-    // ARYA: measured pace and a grounded, lower register; keep gentle passages calm
-    // without making the voice unnaturally deep. Browser voice identity still depends on installed TTS voices.
+    // ARYA: adult, composed delivery—firm consonants, measured pace, and a warm lower register.
+    // The installed Indonesian TTS voice determines actual timbre; pitch only fine-tunes it.
     utterance.rate = persona.gender === 'masculine'
-      ? (emotional === 'gentle' ? 0.84 : emotional === 'bright' ? 0.89 : 0.86)
+      ? (emotional === 'gentle' ? 0.88 : emotional === 'bright' ? 0.94 : 0.91)
       : (emotional === 'gentle' ? 0.91 : emotional === 'bright' ? 1.0 : persona.style === 'playful' ? 0.99 : 0.95);
     // A lower pitch can deepen delivery, but cannot change the underlying TTS voice's timbre.
-    utterance.pitch = persona.gender === 'masculine' ? 0.58 : persona.gender === 'feminine' ? 1.04 : 1.0;
-    if (emotional === 'gentle') utterance.pitch *= persona.gender === 'masculine' ? 0.96 : 0.98;
+    utterance.pitch = persona.gender === 'masculine' ? 0.76 : persona.gender === 'feminine' ? 1.04 : 1.0;
+    if (emotional === 'gentle') utterance.pitch *= persona.gender === 'masculine' ? 0.98 : 0.98;
     if (emotional === 'bright') utterance.pitch *= persona.gender === 'masculine' ? 1.0 : 1.02;
     utterance.onstart = () => setVoiceState('speaking', companionName() + ' sedang berbicara', selected ? 'Menggunakan suara ' + selected.name + '.' : 'Suara mengikuti dukungan browser/perangkat.');
     utterance.onend = () => { if (chunkIndex < chunks.length) window.setTimeout(speakNext, /[,;:]$/.test(part) ? 100 : 170); else speakNext(); };
