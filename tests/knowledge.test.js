@@ -138,7 +138,7 @@ test('trend literacy encourages careful verification and long-term self-developm
   const trend = kb.search('bagaimana mengecek sumber aslinya dan tanggal pada isu viral sebelum membagikan')[0];
   assert.ok(trend);
   assert.match(trend.text, /sumber aslinya/i);
-  const deepfake = kb.search('cara memeriksa video deepfake dan suara AI')[0];
+  const deepfake = kb.search('deepfake video palsu tiruan wajah verifikasi identitas')[0];
   assert.ok(deepfake);
   assert.match(deepfake.text, /konfirmasi melalui kanal lain/i);
   const challenge = kb.search('apakah tantangan viral selalu aman')[0];
