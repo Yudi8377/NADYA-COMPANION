@@ -1,4 +1,5 @@
 import { ADDITIONAL_KNOWLEDGE } from './additional-knowledge.js';
+import { EXPANDED_KNOWLEDGE } from './expanded-knowledge.js';
 
 const STARTER_KNOWLEDGE = [
   { id: 'identity', topic: 'Identitas NADYA', keywords: ['siapa kamu', 'tentang nadya', 'identitas'], answer: 'Aku NADYA AI COMPANION. Aku dirancang sebagai pendamping berbahasa Indonesia untuk refleksi, belajar, komunikasi, karakter, dan kesejahteraan sehari-hari. Aku bukan psikolog, dokter, atau layanan darurat. Pengetahuan lokal berasal dari materi yang dibundel; kemampuan generatif tetap bergantung pada model yang benar-benar dikonfigurasi.', sources: ['https://www.apa.org/topics/'] },
@@ -34,6 +35,7 @@ const STARTER_KNOWLEDGE = [
   { id: 'madurese-language', topic: 'Bahasa Madura dan variasi lokal', keywords: ['bahasa madura', 'madurese', 'terima kasih madura', 'salam madura'], answer: 'Bahasa Madura memiliki variasi dialek dan tingkat tutur; kosakata dapat berbeda antardaerah dan konteks sosial. Untuk menghindari salah ungkap, NADYA sebaiknya meminta pengguna memilih dialek atau memberi contoh kalimat yang ingin dipakai, lalu menyatakan ketidakpastian bila belum terverifikasi. Jangan mengarang terjemahan untuk topik penting atau sensitif.', sources: [] },
   { id: 'regional-languages', topic: 'Bahasa daerah Indonesia lainnya', keywords: ['bahasa daerah', 'bahasa bali', 'minang', 'bugis', 'batak', 'banjar', 'aceh', 'dayak', 'papua'], answer: 'Indonesia memiliki banyak bahasa daerah—antara lain Bali, Minangkabau, Bugis, Batak, Banjar, Aceh, Sasak, berbagai bahasa Dayak dan bahasa-bahasa Papua. Kemampuan tiap bahasa tidak otomatis sama. Untuk hasil yang baik, tentukan bahasa dan dialek, gunakan kamus atau sumber penutur tepercaya, minta koreksi, serta jangan menyajikan terjemahan yang belum diverifikasi sebagai pasti benar.', sources: [] },
   ...ADDITIONAL_KNOWLEDGE,
+  ...EXPANDED_KNOWLEDGE,
 ];
 
 function normalize(value) {
