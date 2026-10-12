@@ -132,3 +132,22 @@ test('expanded offline knowledge pack includes climate, databases, testing, and 
   assert.ok(bundle.bundledKnowledge.some((item) => item.id === 'systems-thinking'));
   assert.ok(bundle.bundledKnowledge.some((item) => item.id === 'disaster-preparedness'));
 });
+
+test('trend literacy encourages careful verification and long-term self-development', () => {
+  const kb = new LocalKnowledgeBase(new MemoryStorage());
+  const trend = kb.search('bagaimana menilai isu viral sebelum membagikan')[0];
+  assert.ok(trend);
+  assert.match(trend.text, /sumber aslinya/i);
+  const deepfake = kb.search('cara memeriksa video deepfake dan suara AI')[0];
+  assert.ok(deepfake);
+  assert.match(deepfake.text, /konfirmasi melalui kanal lain/i);
+  const challenge = kb.search('apakah tantangan viral selalu aman')[0];
+  assert.ok(challenge);
+  assert.match(challenge.text, /Popularitas bukan bukti/i);
+  const checklist = kb.search('checklist tren sebelum membeli atau ikut-ikutan')[0];
+  assert.ok(checklist);
+  assert.match(checklist.text, /tujuan jangka panjangku/i);
+  const bundle = JSON.parse(kb.exportBundleJSON());
+  assert.ok(bundle.bundledKnowledge.some((item) => item.id === 'trend-literacy'));
+  assert.ok(bundle.bundledKnowledge.some((item) => item.id === 'financial-hype-and-fomo'));
+});
